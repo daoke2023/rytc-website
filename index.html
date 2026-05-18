@@ -8,13 +8,70 @@
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft Yahei",sans-serif;}
-        body{background:#050816;color:#eef2ff;min-height:100vh;}
-        .container{max-width:1200px;margin:0 auto;padding:20px;}
-        header{background:#0a1029;padding:15px 0;border-bottom:1px solid #223;}
-        .nav{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;}
-        .nav a{color:#fff;text-decoration:none;padding:8px 16px;background:#1a2342;border-radius:6px;transition:0.3s;}
+        body{background:#050816;color:#eef2ff;min-height:100vh;display:flex;}
+
+        /* 左侧侧边栏菜单 */
+        .left-sidebar{
+            width:200px;
+            background:#0a1029;
+            border-right:1px solid #223;
+            transition: 0.3s ease;
+            position:relative;
+            flex-shrink: 0;
+        }
+        /* 折叠后宽度 */
+        .left-sidebar.fold{
+            width:45px;
+        }
+
+        /* 折叠竖杠按钮 */
+        .fold-btn{
+            position:absolute;
+            right:0;
+            top:20px;
+            width:6px;
+            height:40px;
+            background:#2563eb;
+            cursor:pointer;
+            border-radius:3px 0 0 3px;
+            z-index:9;
+        }
+
+        /* 左侧菜单列表 */
+        .nav{
+            padding-top:60px;
+            display:flex;
+            flex-direction:column;
+            gap:8px;
+            padding-left:10px;
+            padding-right:10px;
+        }
+        .nav a{
+            color:#fff;
+            text-decoration:none;
+            padding:12px 10px;
+            background:#1a2342;
+            border-radius:6px;
+            transition:0.3s;
+            white-space: nowrap;
+            overflow:hidden;
+        }
         .nav a:hover{background:#2563eb;}
         .nav a.active{background:#2563eb;}
+
+        /* 折叠后文字隐藏 */
+        .left-sidebar.fold .nav a{
+            color:transparent;
+        }
+
+        /* 主内容区域 */
+        .main-wrap{
+            flex:1;
+            padding:20px;
+            overflow:auto;
+        }
+
+        .container{max-width:1200px;margin:0 auto;}
         .card{background:rgba(20,28,48,0.7);border:1px solid rgba(80,140,255,0.2);border-radius:16px;padding:24px;margin:20px 0;}
         button{padding:10px 20px;background:#2563eb;border:none;color:#fff;border-radius:6px;cursor:pointer;margin:4px;}
         .resetBtn{background:#e53e3e;}
@@ -25,19 +82,24 @@
     </style>
 </head>
 <body>
-    <header>
-        <div class="nav">
-            <a href="#" class="active" onclick="switchPage('home')">首页</a>
-            <a href="#" onclick="switchPage('stake')">质押挖矿</a>
-            <a href="#" onclick="switchPage('hold')">持币生息</a>
-            <a href="#" onclick="teamPage()">团队推广</a>
-            <a href="#" onclick="guildPage()">公会中心</a>
-            <a href="#" onclick="switchPage('whitepaper')">白皮书</a>
-            <a href="#" onclick="switchPage('about')">关于我们</a>
-            <a href="#" onclick="goAdmin()">后台管理</a>
-        </div>
-    </header>
 
+<!-- 左侧侧边栏 替代原来顶部横菜单 -->
+<div class="left-sidebar" id="sideBar">
+    <div class="fold-btn" id="foldBtn"></div>
+    <div class="nav">
+        <a href="#" class="active" onclick="switchPage('home')">首页</a>
+        <a href="#" onclick="switchPage('stake')">质押挖矿</a>
+        <a href="#" onclick="switchPage('hold')">持币生息</a>
+        <a href="#" onclick="teamPage()">团队推广</a>
+        <a href="#" onclick="guildPage()">公会中心</a>
+        <a href="#" onclick="switchPage('whitepaper')">白皮书</a>
+        <a href="#" onclick="switchPage('about')">关于我们</a>
+        <a href="#" onclick="goAdmin()">后台管理</a>
+    </div>
+</div>
+
+<!-- 右侧主内容 -->
+<div class="main-wrap">
     <div class="container">
         <div id="page-home" class="page">
             <div class="card">
@@ -137,8 +199,16 @@
             </div>
         </div>
     </div>
+</div>
 
     <script>
+        // 侧边栏折叠展开
+        const sideBar = document.getElementById('sideBar');
+        const foldBtn = document.getElementById('foldBtn');
+        foldBtn.onclick = function(){
+            sideBar.classList.toggle('fold');
+        }
+
         // 默认管理员初始密码
         const InitAdminPwd = "123456";
 
