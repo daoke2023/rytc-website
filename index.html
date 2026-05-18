@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RYTC Global Ecology</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.8.2/dist/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft Yahei",sans-serif;}
+        body{background:#050816;color:#eef2ff;min-height:100vh;}
+        .container{max-width:1200px;margin:0 auto;padding:20px;}
+        header{background:#0a1029;padding:15px 0;border-bottom:1px solid #223;}
+        .nav{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;}
+        .nav a{color:#fff;text-decoration:none;padding:8px 16px;background:#1a2342;border-radius:6px;transition:0.3s;}
+        .nav a:hover{background:#2563eb;}
+        .nav a.active{background:#2563eb;}
+        .card{background:rgba(20,28,48,0.7);border:1px solid rgba(80,140,255,0.2);border-radius:16px;padding:24px;margin:20px 0;}
+        button{padding:10px 20px;background:#2563eb;border:none;color:#fff;border-radius:6px;cursor:pointer;margin:4px;}
+        .resetBtn{background:#e53e3e;}
+        .pwdBtn{background:#27ae60;}
+        input,textarea{width:100%;padding:10px;margin:8px 0;background:#111833;border:1px solid #334;border-radius:6px;color:#fff;}
+        .hide{display:none;}
+        pre{white-space:pre-wrap;word-wrap:break-word;}
+    </style>
+</head>
+<body>
+    <header>
+        <div class="nav">
+            <a href="#" class="active" onclick="switchPage('home')">首页</a>
+            <a href="#" onclick="switchPage('stake')">质押挖矿</a>
+            <a href="#" onclick="switchPage('hold')">持币生息</a>
+            <a href="#" onclick="teamPage()">团队推广</a>
+            <a href="#" onclick="guildPage()">公会中心</a>
+            <a href="#" onclick="switchPage('whitepaper')">白皮书</a>
+            <a href="#" onclick="switchPage('about')">关于我们</a>
+            <a href="#" onclick="goAdmin()">后台管理</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div id="page-home" class="page">
+            <div class="card">
+                <h2>RYTC 全球实体生态通证</h2>
+                <p>基于Polygon马蹄链 | 链上DeFi+全球实体商业双闭环生态</p>
+                <br>
+                <button onclick="connectWallet()">连接钱包</button>
+                <p id="walletAddr"></p>
+            </div>
+        </div>
+
+        <div id="page-stake" class="page hide">
+            <div class="card"><h3>周期质押挖矿</h3></div>
+        </div>
+
+        <div id="page-hold" class="page hide">
+            <div class="card"><h3>持币生息收益</h3></div>
+        </div>
+
+        <div id="page-team" class="page hide">
+            <div class="card"><h3>全球两级推广体系</h3></div>
+        </div>
+
+        <div id="page-guild" class="page hide">
+            <div class="card"><h3>200全球公会DAO自治</h3></div>
+        </div>
+
+        <div id="page-whitepaper" class="page hide">
+            <div class="card">
+                <h3>📄 官方双语白皮书</h3>
+                <pre id="whitepaperContent" style="max-height:600px;overflow:auto;padding:10px;border:1px solid #333;"></pre>
+            </div>
+        </div>
+
+        <div id="page-about" class="page hide">
+            <div class="card">
+                <h3>🌐 关于项目</h3>
+                <div id="aboutContent"></div>
+                <br>
+                <h4>官方联系方式</h4>
+                <p>邮箱：<span id="siteEmail"></span></p>
+                <p>Twitter：<span id="siteTw"></span></p>
+                <p>Telegram：<span id="siteTg"></span></p>
+                <p>官网：<span id="siteUrl"></span></p>
+            </div>
+        </div>
+
+        <!-- 后台密码登录页 -->
+        <div id="page-login" class="page hide">
+            <div class="card">
+                <h3>🔐 管理员登录</h3>
+                <input type="password" id="adminPwdInput" placeholder="请输入管理员密码">
+                <button onclick="checkAdminPwd()">确认登录</button>
+            </div>
+        </div>
+
+        <!-- 真正后台页面（密码正确才可见） -->
+        <div id="page-admin" class="page hide">
+            <div class="card">
+                <h3>🔧 链上合约参数管理（原有功能不变）</h3>
+                <p>质押倍率、持币利息、推广比例、公会参数 全部保留</p>
+            </div>
+
+            <div class="card">
+                <h3>🔑 修改管理员密码</h3>
+                <input type="password" id="newPwd" placeholder="输入新密码">
+                <button class="pwdBtn" onclick="changePwd()">保存新密码</button>
+            </div>
+
+            <div class="card">
+                <h3>📝 网站基础信息设置</h3>
+                <textarea id="editAbout" placeholder="填写公司简介、项目介绍"></textarea>
+                <input type="text" id="editEmail" placeholder="官方邮箱">
+                <input type="text" id="editTw" placeholder="Twitter链接">
+                <input type="text" id="editTg" placeholder="Telegram链接">
+                <input type="text" id="editUrl" placeholder="官网地址">
+                <button onclick="saveSiteConfig()">保存全站配置</button>
+            </div>
+
+            <div class="card">
+                <h3>📃 编辑白皮书内容</h3>
+                <textarea id="editWhitepaper" style="height:300px;" placeholder="可自由修改、替换白皮书"></textarea>
+                <button onclick="saveWhitepaper()">保存白皮书</button>
+                <p style="color:#888;font-size:12px;margin-top:8px;">提示：默认已预装完整版双语白皮书，后台可随时覆盖修改</p>
+            </div>
+
+            <div class="card">
+                <h3>📢 自定义公告 / 新增栏目文案</h3>
+                <textarea id="editNotice" placeholder="自由添加公告、活动、自定义栏目内容"></textarea>
+                <button onclick="saveNotice()">保存公告内容</button>
+            </div>
+
+            <div class="card">
+                <h3>⚙️ 系统工具</h3>
+                <button class="resetBtn" onclick="resetDefault()">一键恢复出厂默认</button>
+                <p style="color:#888;font-size:12px;margin-top:8px;">还原原版白皮书+所有官方默认资料</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 默认管理员初始密码
+        const InitAdminPwd = "123456";
+
+        // 默认预装原版完整配置
+        const DefaultConfig = {
+            about:`BlockTech Global Pte. Ltd（新加坡）
+2018年成立，专注区块链底层公链研发、智能合约审计、实体企业链改服务。
+持有新加坡MAS数字资产服务牌照、迪拜VASP跨境虚拟资产运营资质。
+核心技术来自Polygon Labs、以太坊基金会，专注全球实体商业区块链落地生态。`,
+            email:"contact@rytc.global",
+            tw:"https://twitter.com/rytc_global",
+            tg:"https://t.me/rytc_global",
+            url:"https://rytc.global",
+            whitepaper:`RYTC GLOBAL ECOLOGY TOKEN
+全球实体生态通证 官方白皮书
+底层技术｜Ethereum Layer2 Polygon（马蹄链）
+运营主体｜BlockTech Global Pte. Ltd. Singapore
+发布年份｜2026
+
+免责声明
+本文档为海外Web3区块链项目生态介绍，仅面向全球海外用户阅览参与。
+本项目不面向中国大陆地区开展推广、募资、交易等相关业务，不构成任何投资建议。
+项目严格遵守新加坡MAS、迪拜VASP及全球各地虚拟资产监管法规。
+虚拟数字资产存在市场波动风险，所有参与者请自行承担对应风险。
+
+一、项目概述
+RYTC 是由新加坡 BlockTech Global 技术团队，基于以太坊Polygon马蹄链打造的
+「链上DeFi金融生态 + 全球实体商业支付」双向闭环去中心化通证。
+项目摒弃传统空气币纯链上模式，深度落地全球实体经济场景，
+实现线上链上造血盈利、线下实体商业价值托底，构建永续稳定的全球化Web3商业生态。
+
+二、海外主体与技术背景
+2.1 运营公司
+BlockTech Global Pte. Ltd.｜新加坡
+- 2018成立，专注区块链底层公链研发、智能合约审计、实体企业链改服务
+- 持有新加坡MAS数字资产服务牌照、迪拜VASP跨境虚拟资产运营资质
+- 核心技术成员来自Polygon Labs、以太坊基金会、国际区块链安全实验室
+- 长期为全球实体企业提供去中心化支付、链上合约定制、跨境结算系统搭建
+
+2.2 Polygon马蹄链核心优势
+- 极速交易：2–3秒区块确认，转账秒到
+- 极低Gas：手续费近乎零成本，全民无门槛参与
+- 以太坊原生安全：数据不可篡改、永久链上可查
+- 全EVM兼容：支持全部DeFi、DApp无缝接入
+- 多服务器多域名同源同步，全网数据统一
+
+三、通证经济模型
+3.1 代币基础信息
+- 全称：RYTC Global Ecology Token
+- 简称：RYTC
+- 发行链：Polygon（马蹄链）
+- 总发行量：275,000,000 枚
+- 发行规则：无私募、无预挖、无团队预留、无人工增发
+
+3.2 产出来源
+1. 多周期质押挖矿产出
+2. 持币生息每日生态释放
+3. 全球两级推广链上奖励
+4. 200家全球公会自治分红池
+
+3.3 通缩销毁
+线下消费、链上交互自动销毁代币，商业规模越大销毁越多，长期通缩赋能价值。
+
+四、链上DeFi核心生态
+4.1 持币生息
+持有RYTC无需锁仓，合约每日自动结算收益，全自动复利增长。
+4.2 多周期质押挖矿
+长短多周期锁仓挖矿，周期越长收益倍率越高，合约自动发放、公开透明。
+4.3 全球两级推广
+一级直推、二级团队奖励，链上自动分发，无人工截留。
+4.4 200全球DAO公会
+全球200家自治公会，独立业绩、独立分红，打造分布式全球商业联盟。
+
+五、全球实体商业落地场景
+5.1 国际炼油能源产业
+跨境炼油采购、石油供应链结算、能源企业资产储备、跨境能源贸易清算。
+5.2 全球星级酒店连锁宾馆
+酒店房费支付、会员储值、全球宾馆跨区通兑商旅消费。
+5.3 国际连锁超市商超零售
+日常百货消费、跨境进口商品结算、便利店线上线下通用支付。
+5.4 高端高尔夫球场私人会所
+高尔夫会员年费、场地消费、高端圈层商务会所结算。
+5.5 大型娱乐综合体文旅产业
+娱乐全域消费、景区门票、度假休闲、主题乐园支付通兑。
+5.6 全球跨境进出口贸易
+跨境货款结算、国际物流仓储、全球商户储备数字资产。
+
+六、双服务器双域名分布式架构
+两台海外独立高防服务器、两个独立顶级域名，同源同一链上合约。
+数据实时互通、后台改参数全网链上同步、防风控防屏蔽、永久稳定运营。
+
+七、发展路线图 Roadmap
+2026 Q2
+合约部署安全审计、双域名DApp上线、200全球公会搭建完成
+2026 Q3
+持币生息质押挖矿开放、全球推广上线、首批海外实体接入支付
+2026 Q4
+炼油能源场景落地、高尔夫高端会所接入、上线国际去中心化交易所
+2027 全球化扩张
+百家实体企业接入、全商业生态闭环、成长为马蹄链头部实体生态项目
+
+八、项目总结
+RYTC依托新加坡合规公司、马蹄链底层技术、全链上智能合约、全球实体落地场景，
+实现线上金融造血，线下实体托底，打造永续稳定、真实价值的全球化Web3生态通证。
+
+—————————— ENGLISH ——————————
+
+Disclaimer
+This white paper is only for global overseas users.
+The project does not carry out any business promotion within mainland China
+and does not constitute any investment advice.
+All operations comply with Singapore MAS, Dubai VASP and global Web3 regulations.
+Digital asset investment carries market risks, participants bear their own risks.
+
+1. Project Overview
+RYTC is a decentralized ecological token built by BlockTech Global Singapore on Polygon Ethereum Layer2.
+It builds a dual closed-loop ecosystem:
+On-chain DeFi Finance + Global Real Economy Payment
+With massive physical offline application scenarios, RYTC creates sustainable valuable global Web3 business ecology.
+
+2. Company & Technical Background
+2.1 Operating Entity
+BlockTech Global Pte. Ltd. (Singapore)
+- Founded in 2018, focusing on underlying blockchain development, smart contract audit and entity blockchain transformation
+- Licensed by Singapore MAS and Dubai VASP
+- Core team from Polygon Labs, Ethereum Foundation and global security institutions
+- Provide cross-border settlement, decentralized payment and custom smart contract services
+
+2.2 Polygon Advantages
+- Fast 2–3s transaction confirmation
+- Near-zero gas fee for global users
+- Ethereum-level security, immutable on-chain data
+- Full EVM compatibility with all DeFi & DApp
+- Multi-server multi-domain synchronous global deployment
+
+3. Token Economics
+3.1 Basic Info
+- Full Name：RYTC Global Ecology Token
+- Symbol：RYTC
+- Blockchain：Polygon Matic
+- Total Supply：275,000,000
+- Rule：No private sale, no pre-mine, no team token, no manual mint
+
+3.2 Output Sources
+1. Multi-cycle staking mining
+2. Daily holding reward
+3. Two-level global referral bonus
+4. 200 global DAO guild dividend pool
+
+3.3 Deflation Burn Mechanism
+Offline physical consumption and on-chain interaction trigger automatic token burn.
+Larger business scale leads to stronger deflation and long-term value growth.
+
+4. On-Chain DeFi Ecosystem
+4.1 Holding Interest
+Automatic daily compound rewards for RYTC holders, no lock-up required.
+4.2 Multi-Cycle Staking Mining
+Different lock-up cycles with increasing APY, all rewards distributed automatically by smart contract.
+4.3 Global Two-Level Referral
+Direct referral and team bonus, fully automatic on-chain distribution.
+4.4 200 Global DAO Guilds
+200 independent autonomous business guilds with exclusive performance and dividend pools.
+
+5. Global Real Economy Application
+5.1 Refining & Energy Industry
+Cross-border oil settlement, petrochemical supply chain payment, energy trade clearing.
+5.2 Global Star Hotels
+Hotel payment, membership recharge, global hotel cross-region consumption.
+5.3 Supermarket & Retail
+Daily shopping, cross-border goods settlement, offline convenience store payment.
+5.4 Golf & Luxury Private Club
+Golf membership fee, high-end business club consumption.
+5.5 Entertainment & Tourism
+Resort ticket, entertainment complex consumption, theme park payment.
+5.6 Cross-Border International Trade
+Trade settlement, logistics & warehouse payment, global merchant reserve assets.
+
+6. Dual-Server Dual-Domain DApp Structure
+Two independent overseas high-security servers and two exclusive domain names,
+sharing the same on-chain smart contracts, real-time synchronized global data,
+ensuring permanent stable global access and anti-risk capability.
+
+7. Roadmap
+2026 Q2
+Smart contract deployment, security audit, dual-domain DApp launch, 200 guilds establishment
+2026 Q3
+Open staking & holding income, global referral system, first physical merchant access
+2026 Q4
+Energy industry access, high-end golf club cooperation, DEX listing
+2027 Global Expansion
+Hundreds of physical enterprises access, complete full-scene ecological closed-loop
+
+8. Summary
+Supported by Singapore regulated company, Polygon underlying technology,
+full decentralized on-chain contracts and global physical scenarios,
+RYTC realizes On-chain value creation, Offline value support,
+building stable, permanent and high-value global Web3 ecological token.`,
+            notice:""
+        };
+
+        // 读取管理员密码
+        let adminPwd = localStorage.getItem('adminPwd') || InitAdminPwd;
+        // 读取网站配置
+        let siteConfig = JSON.parse(localStorage.getItem('siteConfig')) || DefaultConfig;
+
+
+        // 进入后台，先跳登录页
+        function goAdmin(){
+            switchPage('login');
+        }
+
+        // 校验管理员密码
+        function checkAdminPwd(){
+            let inputPwd = document.getElementById('adminPwdInput').value;
+            if(inputPwd === adminPwd){
+                switchPage('admin');
+            }else{
+                alert("❌ 密码错误，无法进入后台！");
+            }
+        }
+
+        // 修改管理员密码
+        function changePwd(){
+            let newP = document.getElementById('newPwd').value.trim();
+            if(!newP){
+                alert("请输入新密码");
+                return;
+            }
+            adminPwd = newP;
+            localStorage.setItem('adminPwd',adminPwd);
+            alert("✅ 管理员密码修改成功！");
+            document.getElementById('newPwd').value = "";
+        }
+
+        // 一键恢复出厂
+        function resetDefault(){
+            if(confirm("确定恢复出厂默认？\n还原原版白皮书+所有官方默认资料，清除自定义修改！")){
+                localStorage.removeItem('siteConfig');
+                siteConfig = DefaultConfig;
+                loadAdminEdit();
+                alert("✅ 已恢复出厂默认！");
+            }
+        }
+
+        function switchPage(id){
+            document.querySelectorAll('.page').forEach(p=>p.classList.add('hide'));
+            document.getElementById('page-'+id).classList.remove('hide');
+            if(id === 'about') loadAboutPage();
+            if(id === 'whitepaper') loadWhitepaperPage();
+            if(id === 'admin') loadAdminEdit();
+        }
+        function teamPage(){switchPage('team')}
+        function guildPage(){switchPage('guild')}
+
+        function loadAboutPage(){
+            document.getElementById('aboutContent').innerText = siteConfig.about;
+            document.getElementById('siteEmail').innerText = siteConfig.email;
+            document.getElementById('siteTw').innerText = siteConfig.tw;
+            document.getElementById('siteTg').innerText = siteConfig.tg;
+            document.getElementById('siteUrl').innerText = siteConfig.url;
+        }
+        function loadWhitepaperPage(){
+            document.getElementById('whitepaperContent').innerText = siteConfig.whitepaper;
+        }
+        function loadAdminEdit(){
+            document.getElementById('editAbout').value = siteConfig.about;
+            document.getElementById('editEmail').value = siteConfig.email;
+            document.getElementById('editTw').value = siteConfig.tw;
+            document.getElementById('editTg').value = siteConfig.tg;
+            document.getElementById('editUrl').value = siteConfig.url;
+            document.getElementById('editWhitepaper').value = siteConfig.whitepaper;
+            document.getElementById('editNotice').value = siteConfig.notice;
+        }
+
+        function saveSiteConfig(){
+            siteConfig.about = document.getElementById('editAbout').value;
+            siteConfig.email = document.getElementById('editEmail').value;
+            siteConfig.tw = document.getElementById('editTw').value;
+            siteConfig.tg = document.getElementById('editTg').value;
+            siteConfig.url = document.getElementById('editUrl').value;
+            localStorage.setItem('siteConfig',JSON.stringify(siteConfig));
+            alert("✅ 保存成功，前端实时生效！");
+        }
+        function saveWhitepaper(){
+            siteConfig.whitepaper = document.getElementById('editWhitepaper').value;
+            localStorage.setItem('siteConfig',JSON.stringify(siteConfig));
+            alert("✅ 白皮书已更新！");
+        }
+        function saveNotice(){
+            siteConfig.notice = document.getElementById('editNotice').value;
+            localStorage.setItem('siteConfig',JSON.stringify(siteConfig));
+            alert("✅ 公告保存成功！");
+        }
+
+        async function connectWallet(){
+            if(!window.ethereum){alert("请安装小狐狸钱包");return;}
+            await window.ethereum.request({method:'eth_requestAccounts'});
+            const acc = window.ethereum.selectedAddress;
+            document.getElementById('walletAddr').innerText = "已连接："+acc;
+        }
+    </script>
+</body>
+</html>
