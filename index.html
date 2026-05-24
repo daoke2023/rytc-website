@@ -1,428 +1,173 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <title>币安链聊天 - 自定义代币红包</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: '#F3BA2F', // 币安黄
-            secondary: '#1E2026',
-            dark: '#14151A',
-          },
-          fontFamily: {
-            inter: ['Inter', 'sans-serif'],
-          },
-        },
-      }
-    }
-  </script>
-  <style type="text/tailwindcss">
-    @layer utilities {
-      .content-auto {
-        content-visibility: auto;
-      }
-      .scrollbar-hide::-webkit-scrollbar {
-        display: none;
-      }
-      .scrollbar-hide {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      }
-      .message-bubble {
-        max-width: 75%;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RYTC - 持币挖矿 | 公会分红 | 生态通证</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#0b1020;color:#fff}
+.container{max-width:1200px;margin:0 auto;padding:20px}
+.top-bar{display:flex;justify-content:space-between;align-items:center;padding:15px 0;border-bottom:1px solid #223355}
+.wallet-btn{background:#2596ff;border:none;color:#fff;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:bold}
+.wallet-btn:hover{background:#007ee6}
+.box{background:#101a33;border-radius:12px;padding:20px;margin:15px 0}
+h2{margin-bottom:15px;color:#4ea8ff}
+.row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:15px}
+.item{background:#182747;padding:15px;border-radius:10px;text-align:center}
+.btn{background:#00b894;border:none;color:#fff;padding:8px 16px;border-radius:6px;margin:5px;cursor:pointer}
+.btn:hover{opacity:0.9}
+.tax-info{color:#ffbb00}
+.tip-text{color:#999;margin-top:10px;font-size:14px}
+</style>
 </head>
-<body class="bg-dark text-white font-inter min-h-screen flex flex-col">
-  <!-- 顶部导航 -->
-  <header class="bg-secondary p-4 shadow-lg flex justify-between items-center sticky top-0 z-50">
-    <div class="flex items-center gap-2">
-      <div class="text-primary text-2xl font-bold">BSC Chat</div>
-      <span class="bg-primary/20 text-primary text-xs px-2 py-1 rounded">币安链</span>
-    </div>
-    <div class="flex items-center gap-3">
-      <div id="balanceDisplay" class="text-sm bg-dark px-3 py-1.5 rounded-full border border-gray-700 hidden">
-        余额: <span class="text-primary font-bold">0.00</span>
-      </div>
-      <button id="walletBtn" class="bg-primary hover:bg-primary/90 text-black font-semibold px-4 py-2 rounded-full transition">
-        连接钱包
-      </button>
-    </div>
-  </header>
+<body>
+<div class="container">
 
-  <!-- 主内容区 -->
-  <main class="flex-1 flex flex-col max-w-6xl w-full mx-auto p-4 md:p-6">
-    <!-- 未连接钱包 -->
-    <div id="connectWalletView" class="flex-1 flex flex-col items-center justify-center text-center p-6">
-      <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-6">
-        <svg class="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-        </svg>
-      </div>
-      <h2 class="text-2xl font-bold mb-2">连接币安链钱包</h2>
-      <p class="text-gray-400 mb-6 max-w-md">使用 MetaMask 连接币安智能链，开始链上聊天与发代币红包</p>
-      <button id="connectBtn" class="bg-primary hover:bg-primary/90 text-black font-bold px-6 py-3 rounded-full text-lg transition">
-        连接 MetaMask
-      </button>
-    </div>
+<div class="top-bar">
+    <h1>RYTC 生态DApp</h1>
+    <button class="wallet-btn" id="connectBtn">连接钱包</button>
+</div>
 
-    <!-- 已连接钱包 - 聊天界面 -->
-    <div id="chatView" class="flex-1 flex flex-col hidden">
-      <!-- 消息区域 -->
-      <div id="messageContainer" class="flex-1 bg-secondary rounded-lg p-4 mb-4 h-[60vh] overflow-y-auto scrollbar-hide flex flex-col gap-3">
-        <div class="text-center text-gray-500 text-sm py-2">—— 聊天开始 ——</div>
-      </div>
+<div class="box">
+    <h2>钱包信息</h2>
+    <p>钱包地址：<span id="walletAddr">未连接</span></p>
+    <p>RYTC余额：<span id="balance">0.00</span></p>
+    <p class="tax-info">预设规则：买入税5% | 卖出税6% | 预售阶段免税</p>
+    <p class="tip-text">税费自动划转黑洞销毁地址+项目营销钱包</p>
+</div>
 
-      <!-- 红包面板 -->
-      <div id="redPacketPanel" class="bg-secondary rounded-lg p-4 mb-4 hidden">
-        <div class="flex justify-between items-center mb-3">
-          <h3 class="font-bold">发代币红包</h3>
-          <button id="closePacketBtn" class="text-gray-400 hover:text-white">✕</button>
+<div class="box">
+    <h2>持币挖矿收益</h2>
+    <div class="row">
+        <div class="item">
+            <p>当前算力</p>
+            <h3 id="power">0</h3>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-          <div>
-            <label class="text-xs text-gray-400 block mb-1">红包类型</label>
-            <select id="packetType" class="w-full bg-dark border border-gray-700 rounded px-3 py-2 text-white outline-none">
-              <option value="fixed">普通红包</option>
-              <option value="random">拼手气红包</option>
-            </select>
-          </div>
-          <div>
-            <label class="text-xs text-gray-400 block mb-1">领取人数</label>
-            <input type="number" id="packetCount" min="1" value="5" class="w-full bg-dark border border-gray-700 rounded px-3 py-2 text-white outline-none">
-          </div>
+        <div class="item">
+            <p>累计挖矿收益</p>
+            <h3 id="mineTotal">0.00</h3>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-          <div>
-            <label class="text-xs text-gray-400 block mb-1">总金额 (你的代币)</label>
-            <input type="number" id="packetAmount" min="0.0001" step="0.0001" value="10" class="w-full bg-dark border border-gray-700 rounded px-3 py-2 text-white outline-none">
-          </div>
-          <div>
-            <label class="text-xs text-gray-400 block mb-1">过期时间(分钟)</label>
-            <input type="number" id="packetExpire" min="1" max="60" value="15" class="w-full bg-dark border border-gray-700 rounded px-3 py-2 text-white outline-none">
-          </div>
+        <div class="item">
+            <p>今日收益</p>
+            <h3 id="dayMine">0.00</h3>
         </div>
-        <button id="createPacketBtn" class="w-full bg-primary hover:bg-primary/90 text-black font-bold py-2.5 rounded transition">
-          确认创建并支付
-        </button>
-      </div>
-
-      <!-- 输入区域 -->
-      <div class="flex gap-2">
-        <button id="redPacketBtn" class="bg-secondary hover:bg-secondary/80 border border-gray-700 text-primary font-bold px-4 py-2 rounded-lg transition">
-          发红包
-        </button>
-        <input id="messageInput" placeholder="输入消息..." class="flex-1 bg-secondary border border-gray-700 rounded-lg px-4 py-2.5 outline-none focus:border-primary">
-        <button id="sendBtn" class="bg-primary hover:bg-primary/90 text-black font-bold px-5 py-2.5 rounded-lg transition">
-          发送
-        </button>
-      </div>
     </div>
-  </main>
+</div>
 
-  <script>
-    // ==========================================
-    // 配置区（你的代币 + 币安链）
-    // ==========================================
-    const CONFIG = {
-      chainId: '0x38', // 币安链主网
-      chainName: 'BNB Smart Chain',
-      rpcUrl: 'https://bsc-dataseed1.binance.org/',
-      symbol: 'BNB',
-      // 你的自定义代币
-      tokenAddress: '0x7ac71f5fb6927739bf3dcbebee32eacf5c298c1f',
-      tokenSymbol: 'YOUR-TOKEN', // 可自行修改显示名称
-      tokenDecimals: 18
-    };
+<div class="box">
+    <h2>公会团队分红</h2>
+    <p>上级推荐地址：<span id="teamUp">无</span></p>
+    <p>团队总人数：<span id="teamNum">0</span></p>
+    <p>团队累计分红：<span id="teamBonus">0.00</span></p>
+</div>
 
-    // 全局状态
-    let provider, signer, userAddress, tokenContract;
-    let messages = [];
-    let redPackets = new Map(); // 红包存储
+<div class="box">
+    <h2>通证交易</h2>
+    <button class="btn" onclick="buyModal()">买入操作</button>
+    <button class="btn" onclick="sellModal()">卖出操作</button>
+    <p class="tip-text">代币未正式发行，交易功能待合约部署后开放</p>
+</div>
 
-    // BEP20 ABI（仅用到余额、转账、授权）
-    const BEP20_ABI = [
-      "function balanceOf(address) view returns (uint256)",
-      "function transfer(address to, uint256 amount) returns (bool)",
-      "function decimals() view returns (uint8)",
-      "function symbol() view returns (string)"
-    ];
+</div>
 
-    // DOM 加载完成
-    window.addEventListener('DOMContentLoaded', () => {
-      initDOMElements();
-      checkWalletConnection();
-    });
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 
-    // DOM 元素绑定
-    function initDOMElements() {
-      const $ = id => document.getElementById(id);
-      window.walletBtn = $('walletBtn');
-      window.connectBtn = $('connectBtn');
-      window.messageInput = $('messageInput');
-      window.sendBtn = $('sendBtn');
-      window.redPacketBtn = $('redPacketBtn');
-      window.redPacketPanel = $('redPacketPanel');
-      window.closePacketBtn = $('closePacketBtn');
-      window.createPacketBtn = $('createPacketBtn');
-      window.connectWalletView = $('connectWalletView');
-      window.chatView = $('chatView');
-      window.messageContainer = $('messageContainer');
-      window.balanceDisplay = $('balanceDisplay');
-      window.packetType = $('packetType');
-      window.packetCount = $('packetCount');
-      window.packetAmount = $('packetAmount');
-      window.packetExpire = $('packetExpire');
+<script>
+// ============预留参数位，发币后填写对应信息============
+// 后续发行代币后，替换下方三项真实数据
+const RPC_URL     = "";       // 公链RPC节点地址
+const CHAIN_ID    = null;     // 对应区块链ID
+const CONTRACT    = "";       // RYTC正式合约地址
+// 你的服务器公网IP，替换成你实际IP
+const BACKEND_URL = "http://此处替换为你的服务器IP:44366";
+// ======================================================
 
-      // 事件
-      connectBtn.addEventListener('click', connectWallet);
-      walletBtn.addEventListener('click', connectWallet);
-      sendBtn.addEventListener('click', sendMessage);
-      messageInput.addEventListener('keypress', e => e.key === 'Enter' && sendMessage());
-      redPacketBtn.addEventListener('click', () => redPacketPanel.classList.toggle('hidden'));
-      closePacketBtn.addEventListener('click', () => redPacketPanel.classList.add('hidden'));
-      createPacketBtn.addEventListener('click', createRedPacket);
-    }
+let walletAddress = "";
+let provider, signer, contract;
 
-    // ==========================================
-    // 钱包连接
-    // ==========================================
-    async function connectWallet() {
-      if (!window.ethereum) {
-        alert('请安装 MetaMask 钱包');
+// 基础合约ABI框架，后续根据合约完整方法补充即可
+const ABI = [
+    "function balanceOf(address) view returns (uint256)",
+    "function getPower(address) view returns (uint256)",
+    "function getMineReward(address) view returns (uint256)",
+    "function getTeamInfo(address) view returns (address,uint256,uint256)",
+    "function transfer(address to, uint256 amount) returns (bool)"
+];
+
+// 钱包连接逻辑，解决点击无响应问题
+document.getElementById("connectBtn").onclick = async function(){
+    if(!window.ethereum){
+        alert("请先安装 MetaMask 小狐狸钱包插件");
         return;
-      }
-      try {
-        // 切换到币安链
-        await window.ethereum.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: CONFIG.chainId }]
+    }
+    if(!RPC_URL || !CHAIN_ID || !CONTRACT){
+        alert("代币暂未发行，合约参数未配置，暂时仅可连接钱包测试");
+    }
+    try{
+        const accounts = await window.ethereum.request({
+            method:"eth_requestAccounts"
         });
-      } catch (e) {
-        // 未添加币安链则添加
-        await window.ethereum.request({
-          method: 'wallet_addEthereumChain',
-          params: [{
-            chainId: CONFIG.chainId,
-            chainName: CONFIG.chainName,
-            rpcUrls: [CONFIG.rpcUrl],
-            nativeCurrency: { symbol: CONFIG.symbol, decimals: 18 },
-            blockExplorerUrls: ['https://bscscan.com/']
-          }]
-        });
-      }
+        walletAddress = accounts[0];
 
-      // 连接钱包
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      userAddress = accounts[0];
-      provider = new ethers.providers.Web3Provider(window.ethereum);
-      signer = provider.getSigner();
-      
-      // 加载代币合约
-      tokenContract = new ethers.Contract(CONFIG.tokenAddress, BEP20_ABI, signer);
-      
-      // 更新界面
-      connectWalletView.classList.add('hidden');
-      chatView.classList.remove('hidden');
-      walletBtn.innerHTML = shortAddress(userAddress);
-      walletBtn.classList.add('bg-dark', 'border', 'border-gray-700');
-      updateTokenBalance();
-      
-      addSystemMessage('钱包连接成功！可以开始聊天和发红包');
-    }
-
-    // ==========================================
-    // 代币余额
-    // ==========================================
-    async function updateTokenBalance() {
-      if (!tokenContract) return;
-      const bal = await tokenContract.balanceOf(userAddress);
-      const formatted = ethers.utils.formatUnits(bal, CONFIG.tokenDecimals);
-      balanceDisplay.querySelector('span').innerText = `${parseFloat(formatted).toFixed(4)} ${CONFIG.tokenSymbol}`;
-      balanceDisplay.classList.remove('hidden');
-    }
-
-    // ==========================================
-    // 发送消息
-    // ==========================================
-    function sendMessage() {
-      const content = messageInput.value.trim();
-      if (!content || !userAddress) return;
-      addMessage(userAddress, content, 'user');
-      messageInput.value = '';
-    }
-
-    // ==========================================
-    // 创建红包（你的代币）
-    // ==========================================
-    async function createRedPacket() {
-      const type = packetType.value;
-      const count = parseInt(packetCount.value);
-      const totalAmount = parseFloat(packetAmount.value);
-      const expireMin = parseInt(packetExpire.value);
-
-      if (!count || !totalAmount || count < 1 || totalAmount <= 0) {
-        alert('请输入正确的红包信息');
-        return;
-      }
-
-      createPacketBtn.disabled = true;
-      createPacketBtn.innerText = '交易处理中...';
-
-      try {
-        const amountWei = ethers.utils.parseUnits(totalAmount.toString(), CONFIG.tokenDecimals);
-        const packetId = 'pk_' + Date.now() + Math.random().toString(16).substr(2, 6);
-        const expireTime = Date.now() + expireMin * 60 * 1000;
-
-        // 链上转账到合约/临时地址（演示直接转发到系统地址，正式版可部署红包合约）
-        const tx = await tokenContract.transfer(
-          '0x000000000000000000000000000000000000dEaD', // 演示地址，正式版替换为红包合约
-          amountWei
-        );
-        await tx.wait();
-
-        // 红包数据
-        const packet = {
-          id: packetId,
-          sender: userAddress,
-          type,
-          count,
-          totalAmount,
-          remainAmount: totalAmount,
-          remainCount: count,
-          expireTime,
-          claims: {}
-        };
-        redPackets.set(packetId, packet);
-
-        // 发送红包消息
-        addRedPacketMessage(packet);
-        redPacketPanel.classList.add('hidden');
-        addSystemMessage('红包发送成功！');
-        updateTokenBalance();
-      } catch (e) {
-        console.error(e);
-        alert('红包创建失败：' + e.message);
-      } finally {
-        createPacketBtn.disabled = false;
-        createPacketBtn.innerText = '确认创建并支付';
-      }
-    }
-
-    // ==========================================
-    // 领取红包
-    // ==========================================
-    async function claimPacket(packetId) {
-      if (!userAddress) {
-        alert('请先连接钱包');
-        return;
-      }
-      const pkt = redPackets.get(packetId);
-      if (!pkt || pkt.claims[userAddress] || pkt.remainCount <= 0 || Date.now() > pkt.expireTime) {
-        alert('无法领取：已领完/过期/已领取');
-        return;
-      }
-
-      // 计算金额
-      let claimAmount;
-      if (pkt.type === 'fixed') {
-        claimAmount = (pkt.totalAmount / pkt.count).toFixed(6);
-      } else {
-        const max = pkt.remainAmount / pkt.remainCount * 2;
-        claimAmount = (Math.random() * max).toFixed(6);
-      }
-      claimAmount = parseFloat(claimAmount);
-      if (claimAmount > pkt.remainAmount) claimAmount = pkt.remainAmount;
-
-      // 更新状态
-      pkt.claims[userAddress] = claimAmount;
-      pkt.remainAmount -= claimAmount;
-      pkt.remainCount -= 1;
-      redPackets.set(packetId, pkt);
-
-      // 刷新消息
-      refreshAllMessages();
-      addSystemMessage(`你领取了 ${claimAmount} ${CONFIG.tokenSymbol}`);
-    }
-
-    // ==========================================
-    // UI 渲染
-    // ==========================================
-    function addMessage(addr, content, role) {
-      const msg = { addr, content, role, time: new Date() };
-      messages.push(msg);
-      renderMessage(msg);
-      scrollToBottom();
-    }
-
-    function addSystemMessage(text) {
-      addMessage('system', text, 'system');
-    }
-
-    function addRedPacketMessage(pkt) {
-      addMessage(pkt.sender, { type: 'packet', packet: pkt }, 'user');
-    }
-
-    function renderMessage(msg) {
-      const div = document.createElement('div');
-      if (msg.role === 'system') {
-        div.className = 'text-center text-gray-500 text-sm py-1';
-        div.innerText = msg.content;
-      } else if (msg.role === 'user') {
-        const isMe = msg.addr === userAddress;
-        div.className = `flex ${isMe ? 'justify-end' : 'justify-start'}`;
-        
-        const bubble = document.createElement('div');
-        bubble.className = `message-bubble px-4 py-2.5 rounded-xl ${
-          isMe ? 'bg-primary text-black rounded-br-none' : 'bg-secondary text-white rounded-bl-none'
-        }`;
-
-        if (typeof msg.content === 'object' && msg.content.type === 'packet') {
-          const pkt = msg.content.packet;
-          const expired = Date.now() > pkt.expireTime;
-          const claimed = pkt.claims[userAddress];
-          const canClaim = !claimed && pkt.remainCount > 0 && !expired;
-          
-          bubble.innerHTML = `
-            <div class="font-bold text-lg mb-1">🧧 红包</div>
-            <div class="text-sm opacity-80 mb-2">剩余：${pkt.remainCount}/${pkt.count}</div>
-            <div class="text-xs mb-2">${expired ? '已过期' : canClaim ? '可领取' : claimed ? `已领 ${claimed}` : '已抢完'}</div>
-            ${canClaim ? `<button onclick="claimPacket('${pkt.id}')" class="mt-2 bg-black text-white px-3 py-1 rounded-full text-xs font-bold">领取</button>` : ''}
-          `;
-        } else {
-          bubble.innerText = msg.content;
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        signer = provider.getSigner();
+        if(CONTRACT){
+            contract = new ethers.Contract(CONTRACT,ABI,signer);
         }
-        div.appendChild(bubble);
-      }
-      messageContainer.appendChild(div);
-    }
 
-    function refreshAllMessages() {
-      messageContainer.innerHTML = '<div class="text-center text-gray-500 text-sm py-2">—— 聊天开始 ——</div>';
-      messages.forEach(m => renderMessage(m));
-      scrollToBottom();
+        document.getElementById("walletAddr").innerText = walletAddress;
+        alert("✅ 钱包连接成功");
+        if(CONTRACT) loadData();
+    }catch(e){
+        alert("❌ 钱包连接失败，请检查钱包状态后重试");
+        console.log(e);
     }
+}
 
-    function scrollToBottom() {
-      setTimeout(() => messageContainer.scrollTop = messageContainer.scrollHeight, 100);
-    }
+// 读取账户数据
+async function loadData(){
+    if(!walletAddress || !contract) return;
+    await getBalance();
+    await getMineData();
+    await getTeamData();
+}
 
-    function shortAddress(addr) {
-      return addr.substr(0,6) + '...' + addr.substr(-4);
-    }
+// 查询代币余额
+async function getBalance(){
+    let b = await contract.balanceOf(walletAddress);
+    b = ethers.utils.formatEther(b);
+    document.getElementById("balance").innerText = b;
+}
 
-    async function checkWalletConnection() {
-      if (window.ethereum && window.ethereum.selectedAddress) {
-        setTimeout(connectWallet, 300);
-      }
-    }
-  </script>
+// 挖矿算力与收益统计
+async function getMineData(){
+    let power = await contract.getPower(walletAddress);
+    let mine = await contract.getMineReward(walletAddress);
+    document.getElementById("power").innerText = power.toString();
+    document.getElementById("mineTotal").innerText = ethers.utils.formatEther(mine);
+    document.getElementById("dayMine").innerText = (Number(ethers.utils.formatEther(mine))*0.08).toFixed(4);
+}
+
+// 公会团队数据查询
+async function getTeamData(){
+    let [up,num,bonus] = await contract.getTeamInfo(walletAddress);
+    document.getElementById("teamUp").innerText = up === ethers.constants.AddressZero ? "无" : up;
+    document.getElementById("teamNum").innerText = num.toString();
+    document.getElementById("teamBonus").innerText = ethers.utils.formatEther(bonus);
+}
+
+// 交易弹窗提示
+function buyModal(){
+    alert("RYTC代币尚未发行，买入功能暂未开放\n正式上线后二级市场买入扣除5%税费，预售免税");
+}
+function sellModal(){
+    alert("RYTC代币尚未发行，卖出功能暂未开放\n正式上线后卖出扣除6%税费，自动分配至黑洞与营销钱包");
+}
+
+// 定时刷新数据
+setInterval(loadData,5000);
+</script>
+
 </body>
 </html>
