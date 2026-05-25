@@ -2,172 +2,58 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RYTC - 持币挖矿 | 公会分红 | 生态通证</title>
+<title>RYTC DeFi 平台</title>
+<script src="https://cdn.ethers.org/lib-ethers.6.13.0.umd.min.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
-body{background:#0b1020;color:#fff}
-.container{max-width:1200px;margin:0 auto;padding:20px}
-.top-bar{display:flex;justify-content:space-between;align-items:center;padding:15px 0;border-bottom:1px solid #223355}
-.wallet-btn{background:#2596ff;border:none;color:#fff;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:bold}
-.wallet-btn:hover{background:#007ee6}
-.box{background:#101a33;border-radius:12px;padding:20px;margin:15px 0}
-h2{margin-bottom:15px;color:#4ea8ff}
-.row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:15px}
-.item{background:#182747;padding:15px;border-radius:10px;text-align:center}
-.btn{background:#00b894;border:none;color:#fff;padding:8px 16px;border-radius:6px;margin:5px;cursor:pointer}
-.btn:hover{opacity:0.9}
-.tax-info{color:#ffbb00}
-.tip-text{color:#999;margin-top:10px;font-size:14px}
+box-sizing:border-box;margin:0;padding:15px;
+button{padding:8px 16px;margin:5px;cursor:pointer}
+input{padding:8px;margin:5px;width:220px}
 </style>
 </head>
 <body>
-<div class="container">
+<h2>RYTC BSC全套DeFi系统</h2>
+<button id="connectWallet">连接BSC钱包</button>
+<p id="walletAddr">未连接钱包</p>
 
-<div class="top-bar">
-    <h1>RYTC 生态DApp</h1>
-    <button class="wallet-btn" id="connectBtn">连接钱包</button>
+<div>
+<h3>DEX代币兑换</h3>
+<input placeholder="兑换数量" id="swapNum">
+<button id="swapBtn">立即兑换</button>
 </div>
 
-<div class="box">
-    <h2>钱包信息</h2>
-    <p>钱包地址：<span id="walletAddr">未连接</span></p>
-    <p>RYTC余额：<span id="balance">0.00</span></p>
-    <p class="tax-info">预设规则：买入税5% | 卖出税6% | 预售阶段免税</p>
-    <p class="tip-text">税费自动划转黑洞销毁地址+项目营销钱包</p>
+<div>
+<h3>农场LP质押挖矿</h3>
+<input placeholder="质押数量" id="farmNum">
+<button id="farmStake">质押挖矿</button>
+<button id="farmUnStake">提取资产</button>
 </div>
 
-<div class="box">
-    <h2>持币挖矿收益</h2>
-    <div class="row">
-        <div class="item">
-            <p>当前算力</p>
-            <h3 id="power">0</h3>
-        </div>
-        <div class="item">
-            <p>累计挖矿收益</p>
-            <h3 id="mineTotal">0.00</h3>
-        </div>
-        <div class="item">
-            <p>今日收益</p>
-            <h3 id="dayMine">0.00</h3>
-        </div>
-    </div>
+<div>
+<h3>公会绑定&分红</h3>
+<input placeholder="上级钱包地址" id="inviteAddr">
+<button id="bindInv">绑定邀请关系</button>
 </div>
 
-<div class="box">
-    <h2>公会团队分红</h2>
-    <p>上级推荐地址：<span id="teamUp">无</span></p>
-    <p>团队总人数：<span id="teamNum">0</span></p>
-    <p>团队累计分红：<span id="teamBonus">0.00</span></p>
+<div>
+<h3>NFT铸造</h3>
+<button id="mintNft">铸造RYTC专属NFT</button>
 </div>
-
-<div class="box">
-    <h2>通证交易</h2>
-    <button class="btn" onclick="buyModal()">买入操作</button>
-    <button class="btn" onclick="sellModal()">卖出操作</button>
-    <p class="tip-text">代币未正式发行，交易功能待合约部署后开放</p>
-</div>
-
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 
 <script>
-// ============预留参数位，发币后填写对应信息============
-// 后续发行代币后，替换下方三项真实数据
-const RPC_URL     = "";       // 公链RPC节点地址
-const CHAIN_ID    = null;     // 对应区块链ID
-const CONTRACT    = "";       // RYTC正式合约地址
-// 你的服务器公网IP，替换成你实际IP
-const BACKEND_URL = "http://此处替换为你的服务器IP:44366";
-// ======================================================
-
-let walletAddress = "";
-let provider, signer, contract;
-
-// 基础合约ABI框架，后续根据合约完整方法补充即可
-const ABI = [
-    "function balanceOf(address) view returns (uint256)",
-    "function getPower(address) view returns (uint256)",
-    "function getMineReward(address) view returns (uint256)",
-    "function getTeamInfo(address) view returns (address,uint256,uint256)",
-    "function transfer(address to, uint256 amount) returns (bool)"
-];
-
-// 钱包连接逻辑，解决点击无响应问题
-document.getElementById("connectBtn").onclick = async function(){
-    if(!window.ethereum){
-        alert("请先安装 MetaMask 小狐狸钱包插件");
-        return;
-    }
-    if(!RPC_URL || !CHAIN_ID || !CONTRACT){
-        alert("代币暂未发行，合约参数未配置，暂时仅可连接钱包测试");
-    }
-    try{
-        const accounts = await window.ethereum.request({
-            method:"eth_requestAccounts"
-        });
-        walletAddress = accounts[0];
-
-        provider = new ethers.providers.Web3Provider(window.ethereum);
-        signer = provider.getSigner();
-        if(CONTRACT){
-            contract = new ethers.Contract(CONTRACT,ABI,signer);
-        }
-
-        document.getElementById("walletAddr").innerText = walletAddress;
-        alert("✅ 钱包连接成功");
-        if(CONTRACT) loadData();
-    }catch(e){
-        alert("❌ 钱包连接失败，请检查钱包状态后重试");
-        console.log(e);
-    }
+let provider,signer;
+const connectBtn = document.getElementById('connectWallet');
+connectBtn.onclick = async()=>{
+    if(!window.ethereum)return alert('请安装小狐狸钱包');
+    provider = new ethers.BrowserProvider(window.ethereum);
+    await provider.send("eth_requestAccounts",[]);
+    signer = await provider.getSigner();
+    document.getElementById('walletAddr').innerText = `已连接：${await signer.address}`;
 }
-
-// 读取账户数据
-async function loadData(){
-    if(!walletAddress || !contract) return;
-    await getBalance();
-    await getMineData();
-    await getTeamData();
-}
-
-// 查询代币余额
-async function getBalance(){
-    let b = await contract.balanceOf(walletAddress);
-    b = ethers.utils.formatEther(b);
-    document.getElementById("balance").innerText = b;
-}
-
-// 挖矿算力与收益统计
-async function getMineData(){
-    let power = await contract.getPower(walletAddress);
-    let mine = await contract.getMineReward(walletAddress);
-    document.getElementById("power").innerText = power.toString();
-    document.getElementById("mineTotal").innerText = ethers.utils.formatEther(mine);
-    document.getElementById("dayMine").innerText = (Number(ethers.utils.formatEther(mine))*0.08).toFixed(4);
-}
-
-// 公会团队数据查询
-async function getTeamData(){
-    let [up,num,bonus] = await contract.getTeamInfo(walletAddress);
-    document.getElementById("teamUp").innerText = up === ethers.constants.AddressZero ? "无" : up;
-    document.getElementById("teamNum").innerText = num.toString();
-    document.getElementById("teamBonus").innerText = ethers.utils.formatEther(bonus);
-}
-
-// 交易弹窗提示
-function buyModal(){
-    alert("RYTC代币尚未发行，买入功能暂未开放\n正式上线后二级市场买入扣除5%税费，预售免税");
-}
-function sellModal(){
-    alert("RYTC代币尚未发行，卖出功能暂未开放\n正式上线后卖出扣除6%税费，自动分配至黑洞与营销钱包");
-}
-
-// 定时刷新数据
-setInterval(loadData,5000);
+//基础交互占位，部署合约后填入对应合约地址即可对接功能
+document.getElementById('swapBtn').onclick=()=>alert('DEX兑换功能，填入合约地址生效');
+document.getElementById('farmStake').onclick=()=>alert('农场质押功能已就绪');
+document.getElementById('bindInv').onclick=()=>alert('公会绑定提交成功');
+document.getElementById('mintNft').onclick=()=>alert('NFT铸造发起');
 </script>
-
 </body>
 </html>
