@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -46,9 +46,9 @@
             .animate-pulse-slow {
                 animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
             }
-            /* 双语显示控制 */
-            .lang-en { display: none; }
-            .lang-zh { display: inline; }
+            /* 默认英文显示 */
+            .lang-zh { display: none; }
+            .lang-en { display: inline; }
         }
 
         @keyframes float {
@@ -109,7 +109,7 @@
                         <span class="lang-zh">EN</span>
                         <span class="lang-en">中文</span>
                     </button>
-                    <a href="https://daoke2023.github.io/rytc-web3.13" target="_blank" rel="noopener noreferrer" class="px-5 py-2 rounded-full bg-gradient-to-r from-secondary to-accent text-white font-semibold hover:shadow-lg hover:shadow-secondary/30 transition-all">
+                    <a href="https://https://daoke2023.github.io/rytc-website" target="_blank" rel="noopener noreferrer" class="px-5 py-2 rounded-full bg-gradient-to-r from-secondary to-accent text-white font-semibold hover:shadow-lg hover:shadow-secondary/30 transition-all">
                         <span class="lang-zh">白皮书</span>
                         <span class="lang-en">Whitepaper</span>
                     </a>
@@ -151,7 +151,7 @@
                     <span class="lang-zh">联系我们</span>
                     <span class="lang-en">Contact</span>
                 </a>
-                <a href="https://daoke2023.github.io/rytc-web3.13" target="_blank" rel="noopener noreferrer" class="px-5 py-2 rounded-full bg-gradient-to-r from-secondary to-accent text-white font-semibold w-full">
+                <a href="https://https://daoke2023.github.io/rytc-website" target="_blank" rel="noopener noreferrer" class="px-5 py-2 rounded-full bg-gradient-to-r from-secondary to-accent text-white font-semibold w-full">
                     <span class="lang-zh">白皮书</span>
                     <span class="lang-en">Whitepaper</span>
                 </a>
@@ -176,11 +176,11 @@
                         <span class="lang-en">Raymond Chain is a world-leading blockchain tech company. We focus on building decentralized ecosystems and creating a secure, efficient and inclusive blockchain value network.</span>
                     </p>
                     <div class="flex flex-wrap gap-4">
-                        <a href="https://daoke2023.github.io/rytc-web3.13" target="_blank" rel="noopener noreferrer" class="px-8 py-3 rounded-full bg-gradient-to-r from-secondary to-accent text-white font-semibold text-lg hover:shadow-lg hover:shadow-secondary/30 transition-all">
+                        <a href="https://www.raymondrtc.com/raymond/rytcweb3.html" target="_blank" rel="noopener noreferrer" class="px-8 py-3 rounded-full bg-gradient-to-r from-secondary to-accent text-white font-semibold text-lg hover:shadow-lg hover:shadow-secondary/30 transition-all">
                             <span class="lang-zh">探索生态</span>
                             <span class="lang-en">Explore Ecosystem</span>
                         </a>
-                        <a href="https://daoke2023.github.io/rytc-web3.13" target="_blank" rel="noopener noreferrer" class="px-8 py-3 rounded-full border border-gray-600 text-lg hover:border-accent hover:text-accent transition-all">
+                        <a href="https://www.raymondrtc.com/raymond/rytcweb3.html" target="_blank" rel="noopener noreferrer" class="px-8 py-3 rounded-full border border-gray-600 text-lg hover:border-accent hover:text-accent transition-all">
                             <span class="lang-zh">了解更多</span>
                             <span class="lang-en">Learn More</span>
                         </a>
@@ -310,7 +310,7 @@
                         </div>
                     </div>
 
-                    <a href="https://daoke2023.github.io/rytc-web3.13" target="_blank" rel="noopener noreferrer" class="px-8 py-3 rounded-full bg-gradient-to-r from-accent to-blue-500 text-white font-semibold text-lg hover:shadow-lg hover:shadow-accent/30 transition-all">
+                    <a href="https://www.raymondrtc.com/raymond/rytcweb3.html" target="_blank" rel="noopener noreferrer" class="px-8 py-3 rounded-full bg-gradient-to-r from-accent to-blue-500 text-white font-semibold text-lg hover:shadow-lg hover:shadow-accent/30 transition-all">
                         <span class="lang-zh">获取 RYTC</span>
                         <span class="lang-en">Get RYTC</span>
                     </a>
@@ -434,7 +434,7 @@
                         <span class="lang-en">Resources</span>
                     </h3>
                     <ul class="space-y-2 text-gray-400">
-                        <li><a href="#" class="hover:text-accent transition-colors">
+                        <li><a href="https://daoke2023.github.io/rytc-web3.13" target="_blank" rel="noopener noreferrer" class="hover:text-accent transition-colors">
                             <span class="lang-zh">白皮书</span><span class="lang-en">Whitepaper</span>
                         </a></li>
                         <li><a href="#" class="hover:text-accent transition-colors">
@@ -499,10 +499,10 @@
 
     <!-- JS 脚本 -->
     <script>
-        // 双语切换逻辑
+        // 默认英文
         const langBtn = document.getElementById('langBtn');
         const langBtnMobile = document.getElementById('langBtnMobile');
-        let isZh = true;
+        let isZh = false;
 
         // 切换语言函数
         function switchLang() {
