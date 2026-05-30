@@ -46,6 +46,9 @@
             .animate-pulse-slow {
                 animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
             }
+            /* 双语显示控制 */
+            .lang-en { display: none; }
+            .lang-zh { display: inline; }
         }
 
         @keyframes float {
@@ -81,33 +84,76 @@
 
                 <!-- 桌面端导航 -->
                 <nav class="hidden md:flex items-center gap-8">
-                    <a href="#home" class="hover:text-accent transition-colors">首页</a>
-                    <a href="#about" class="hover:text-accent transition-colors">关于我们</a>
-                    <a href="#ryt" class="hover:text-accent transition-colors">RYTC生态</a>
-                    <a href="#tech" class="hover:text-accent transition-colors">技术优势</a>
-                    <a href="#contact" class="hover:text-accent transition-colors">联系我们</a>
+                    <a href="#home" class="hover:text-accent transition-colors">
+                        <span class="lang-zh">首页</span>
+                        <span class="lang-en">Home</span>
+                    </a>
+                    <a href="#about" class="hover:text-accent transition-colors">
+                        <span class="lang-zh">关于我们</span>
+                        <span class="lang-en">About Us</span>
+                    </a>
+                    <a href="#ryt" class="hover:text-accent transition-colors">
+                        <span class="lang-zh">RYTC生态</span>
+                        <span class="lang-en">RYTC Ecosystem</span>
+                    </a>
+                    <a href="#tech" class="hover:text-accent transition-colors">
+                        <span class="lang-zh">技术优势</span>
+                        <span class="lang-en">Tech Advantages</span>
+                    </a>
+                    <a href="#contact" class="hover:text-accent transition-colors">
+                        <span class="lang-zh">联系我们</span>
+                        <span class="lang-en">Contact</span>
+                    </a>
+                    <!-- 语言切换按钮 -->
+                    <button id="langBtn" class="px-3 py-1 rounded border border-gray-600 hover:border-accent transition-colors">
+                        <span class="lang-zh">EN</span>
+                        <span class="lang-en">中文</span>
+                    </button>
                     <button class="px-5 py-2 rounded-full bg-gradient-to-r from-secondary to-accent text-white font-semibold hover:shadow-lg hover:shadow-secondary/30 transition-all">
-                        白皮书
+                        <span class="lang-zh">白皮书</span>
+                        <span class="lang-en">Whitepaper</span>
                     </button>
                 </nav>
 
                 <!-- 移动端菜单按钮 -->
-                <button class="md:hidden text-2xl" id="menuBtn">
-                    <i class="fa fa-bars"></i>
-                </button>
+                <div class="flex items-center gap-4 md:hidden">
+                    <button id="langBtnMobile" class="px-3 py-1 rounded border border-gray-600 text-sm">
+                        <span class="lang-zh">EN</span>
+                        <span class="lang-en">中文</span>
+                    </button>
+                    <button class="text-2xl" id="menuBtn">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
         <!-- 移动端导航菜单 -->
         <div class="md:hidden hidden bg-dark/95 bg-glass absolute w-full border-b border-gray-800" id="mobileMenu">
             <div class="container mx-auto px-4 py-4 flex flex-col gap-4">
-                <a href="#home" class="py-2 hover:text-accent transition-colors">首页</a>
-                <a href="#about" class="py-2 hover:text-accent transition-colors">关于我们</a>
-                <a href="#ryt" class="py-2 hover:text-accent transition-colors">RYTC生态</a>
-                <a href="#tech" class="py-2 hover:text-accent transition-colors">技术优势</a>
-                <a href="#contact" class="py-2 hover:text-accent transition-colors">联系我们</a>
+                <a href="#home" class="py-2 hover:text-accent transition-colors">
+                    <span class="lang-zh">首页</span>
+                    <span class="lang-en">Home</span>
+                </a>
+                <a href="#about" class="py-2 hover:text-accent transition-colors">
+                    <span class="lang-zh">关于我们</span>
+                    <span class="lang-en">About Us</span>
+                </a>
+                <a href="#ryt" class="py-2 hover:text-accent transition-colors">
+                    <span class="lang-zh">RYTC生态</span>
+                    <span class="lang-en">RYTC Ecosystem</span>
+                </a>
+                <a href="#tech" class="py-2 hover:text-accent transition-colors">
+                    <span class="lang-zh">技术优势</span>
+                    <span class="lang-en">Tech Advantages</span>
+                </a>
+                <a href="#contact" class="py-2 hover:text-accent transition-colors">
+                    <span class="lang-zh">联系我们</span>
+                    <span class="lang-en">Contact</span>
+                </a>
                 <button class="px-5 py-2 rounded-full bg-gradient-to-r from-secondary to-accent text-white font-semibold w-full">
-                    白皮书
+                    <span class="lang-zh">白皮书</span>
+                    <span class="lang-en">Whitepaper</span>
                 </button>
             </div>
         </div>
@@ -122,19 +168,21 @@
             <div class="flex flex-col lg:flex-row items-center gap-12">
                 <div class="lg:w-1/2 space-y-6">
                     <h2 class="text-[clamp(2.5rem,5vw,4rem)] font-bold leading-tight">
-                        未来<span class="bg-gradient-to-r from-blue-400 to-purple-500 text-gradient">区块链</span>
-                        由雷蒙德定义
+                        <span class="lang-zh">未来<span class="bg-gradient-to-r from-blue-400 to-purple-500 text-gradient">区块链</span>由雷蒙德定义</span>
+                        <span class="lang-en">The Future <span class="bg-gradient-to-r from-blue-400 to-purple-500 text-gradient">Blockchain</span> Defined by Raymond</span>
                     </h2>
                     <p class="text-lg text-gray-300 leading-relaxed">
-                        Raymond Chain 是全球领先的区块链科技公司，专注于构建去中心化生态系统，
-                        以顶尖技术为驱动，打造安全、高效、普惠的区块链价值网络。
+                        <span class="lang-zh">Raymond Chain 是全球领先的区块链科技公司，专注于构建去中心化生态系统，以顶尖技术为驱动，打造安全、高效、普惠的区块链价值网络。</span>
+                        <span class="lang-en">Raymond Chain is a world-leading blockchain tech company. We focus on building decentralized ecosystems and creating a secure, efficient and inclusive blockchain value network.</span>
                     </p>
                     <div class="flex flex-wrap gap-4">
                         <button class="px-8 py-3 rounded-full bg-gradient-to-r from-secondary to-accent text-white font-semibold text-lg hover:shadow-lg hover:shadow-secondary/30 transition-all">
-                            探索生态
+                            <span class="lang-zh">探索生态</span>
+                            <span class="lang-en">Explore Ecosystem</span>
                         </button>
                         <button class="px-8 py-3 rounded-full border border-gray-600 text-lg hover:border-accent hover:text-accent transition-all">
-                            了解更多
+                            <span class="lang-zh">了解更多</span>
+                            <span class="lang-en">Learn More</span>
                         </button>
                     </div>
                 </div>
@@ -152,8 +200,14 @@
     <section id="about" class="py-20 bg-dark relative">
         <div class="container mx-auto px-4">
             <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold mb-4">关于 <span class="bg-gradient-to-r from-blue-400 to-purple-500 text-gradient">Raymond</span></h2>
-                <p class="text-gray-400 max-w-2xl mx-auto">全球顶尖的区块链技术研发与生态运营公司，致力于推动区块链技术商业化落地</p>
+                <h2 class="text-4xl font-bold mb-4">
+                    <span class="lang-zh">关于 <span class="bg-gradient-to-r from-blue-400 to-purple-500 text-gradient">Raymond</span></span>
+                    <span class="lang-en">About <span class="bg-gradient-to-r from-blue-400 to-purple-500 text-gradient">Raymond</span></span>
+                </h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">
+                    <span class="lang-zh">全球顶尖的区块链技术研发与生态运营公司，致力于推动区块链技术商业化落地</span>
+                    <span class="lang-en">Top global blockchain R&D and ecosystem operator, committed to commercializing blockchain technology.</span>
+                </p>
             </div>
 
             <div class="grid md:grid-cols-3 gap-8">
@@ -162,8 +216,14 @@
                     <div class="w-14 h-14 rounded-xl bg-secondary/20 flex items-center justify-center mb-6">
                         <i class="fa fa-globe text-2xl text-secondary"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3">全球布局</h3>
-                    <p class="text-gray-400">业务覆盖全球多个国家和地区，构建国际化区块链价值网络，连接全球用户与技术生态</p>
+                    <h3 class="text-xl font-bold mb-3">
+                        <span class="lang-zh">全球布局</span>
+                        <span class="lang-en">Global Layout</span>
+                    </h3>
+                    <p class="text-gray-400">
+                        <span class="lang-zh">业务覆盖全球多个国家和地区，构建国际化区块链价值网络，连接全球用户与技术生态</span>
+                        <span class="lang-en">Business across worldwide regions, building an international blockchain value network.</span>
+                    </p>
                 </div>
 
                 <!-- 卡片2 -->
@@ -171,8 +231,14 @@
                     <div class="w-14 h-14 rounded-xl bg-accent/20 flex items-center justify-center mb-6">
                         <i class="fa fa-shield text-2xl text-accent"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3">安全可信</h3>
-                    <p class="text-gray-400">采用银行级加密算法与分布式账本技术，保障资产安全与交易可信，行业顶级安全标准</p>
+                    <h3 class="text-xl font-bold mb-3">
+                        <span class="lang-zh">安全可信</span>
+                        <span class="lang-en">Security & Trust</span>
+                    </h3>
+                    <p class="text-gray-400">
+                        <span class="lang-zh">采用银行级加密算法与分布式账本技术，保障资产安全与交易可信，行业顶级安全标准</span>
+                        <span class="lang-en">Bank-level encryption & distributed ledger to ensure asset and transaction security.</span>
+                    </p>
                 </div>
 
                 <!-- 卡片3 -->
@@ -180,8 +246,14 @@
                     <div class="w-14 h-14 rounded-xl bg-blue-500/20 flex items-center justify-center mb-6">
                         <i class="fa fa-lightbulb-o text-2xl text-blue-500"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3">技术创新</h3>
-                    <p class="text-gray-400">持续研发区块链底层技术，突破性能瓶颈，实现毫秒级交易，支持百万级并发处理能力</p>
+                    <h3 class="text-xl font-bold mb-3">
+                        <span class="lang-zh">技术创新</span>
+                        <span class="lang-en">Tech Innovation</span>
+                    </h3>
+                    <p class="text-gray-400">
+                        <span class="lang-zh">持续研发区块链底层技术，突破性能瓶颈，实现毫秒级交易，支持百万级并发处理能力</span>
+                        <span class="lang-en">Independent underlying tech, millisecond transactions and millions-level TPS.</span>
+                    </p>
                 </div>
             </div>
         </div>
@@ -199,34 +271,48 @@
                 <div class="lg:w-1/2 space-y-6">
                     <h2 class="text-4xl font-bold">
                         <span class="bg-gradient-to-r from-accent to-blue-500 text-gradient">RYTC</span>
-                        生态通证
+                        <span class="lang-zh"> 生态通证</span>
+                        <span class="lang-en"> Ecosystem Token</span>
                     </h2>
                     <p class="text-lg text-gray-300 leading-relaxed">
-                        RYTC 是 Raymond Chain 生态核心通证，全称 Raymond Token，
-                        贯穿整个生态系统的价值流通与权益凭证，拥有无限应用场景与升值空间。
+                        <span class="lang-zh">RYTC 是 Raymond Chain 生态核心通证，全称 Raymond Token，贯穿整个生态系统的价值流通与权益凭证，拥有无限应用场景与升值空间。</span>
+                        <span class="lang-en">RYTC is the core token of Raymond Chain. As the value carrier and equity certificate, it has rich application scenarios and great potential.</span>
                     </p>
                     
                     <div class="grid grid-cols-2 gap-4">
                         <div class="bg-dark/50 p-4 rounded-xl border border-gray-800">
-                            <h4 class="font-bold text-accent">总发行量</h4>
-                            <p class="text-2xl font-bold">100亿</p>
+                            <h4 class="font-bold text-accent">
+                                <span class="lang-zh">总发行量</span>
+                                <span class="lang-en">Total Supply</span>
+                            </h4>
+                            <p class="text-2xl font-bold">10 Billion</p>
                         </div>
                         <div class="bg-dark/50 p-4 rounded-xl border border-gray-800">
-                            <h4 class="font-bold text-accent">共识机制</h4>
+                            <h4 class="font-bold text-accent">
+                                <span class="lang-zh">共识机制</span>
+                                <span class="lang-en">Consensus</span>
+                            </h4>
                             <p class="text-2xl font-bold">DPoS</p>
                         </div>
                         <div class="bg-dark/50 p-4 rounded-xl border border-gray-800">
-                            <h4 class="font-bold text-accent">交易速度</h4>
-                            <p class="text-2xl font-bold">毫秒级</p>
+                            <h4 class="font-bold text-accent">
+                                <span class="lang-zh">交易速度</span>
+                                <span class="lang-en">TPS Speed</span>
+                            </h4>
+                            <p class="text-2xl font-bold">Millisecond</p>
                         </div>
                         <div class="bg-dark/50 p-4 rounded-xl border border-gray-800">
-                            <h4 class="font-bold text-accent">生态应用</h4>
-                            <p class="text-2xl font-bold">全场景</p>
+                            <h4 class="font-bold text-accent">
+                                <span class="lang-zh">生态应用</span>
+                                <span class="lang-en">Application</span>
+                            </h4>
+                            <p class="text-2xl font-bold">Full Scenarios</p>
                         </div>
                     </div>
 
                     <button class="px-8 py-3 rounded-full bg-gradient-to-r from-accent to-blue-500 text-white font-semibold text-lg hover:shadow-lg hover:shadow-accent/30 transition-all">
-                        购买 RYTC
+                        <span class="lang-zh">获取 RYTC</span>
+                        <span class="lang-en">Get RYTC</span>
                     </button>
                 </div>
             </div>
@@ -237,33 +323,63 @@
     <section id="tech" class="py-20 bg-dark">
         <div class="container mx-auto px-4">
             <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold mb-4">核心 <span class="bg-gradient-to-r from-blue-400 to-purple-500 text-gradient">技术优势</span></h2>
-                <p class="text-gray-400 max-w-2xl mx-auto">基于自研底层公链，突破传统区块链技术瓶颈，引领行业创新</p>
+                <h2 class="text-4xl font-bold mb-4">
+                    <span class="lang-zh">核心 <span class="bg-gradient-to-r from-blue-400 to-purple-500 text-gradient">技术优势</span></span>
+                    <span class="lang-en">Core <span class="bg-gradient-to-r from-blue-400 to-purple-500 text-gradient">Tech Advantages</span></span>
+                </h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">
+                    <span class="lang-zh">基于自研底层公链，突破传统区块链技术瓶颈，引领行业创新</span>
+                    <span class="lang-en">Self-developed public chain, breaking traditional blockchain limitations.</span>
+                </p>
             </div>
 
             <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div class="bg-primary/30 p-6 rounded-xl border border-gray-800 hover:border-blue-500 transition-all">
                     <i class="fa fa-bolt text-3xl text-blue-500 mb-4"></i>
-                    <h3 class="text-xl font-bold mb-2">高性能</h3>
-                    <p class="text-gray-400">每秒处理10万+交易，远超行业主流公链，满足大规模商业应用</p>
+                    <h3 class="text-xl font-bold mb-2">
+                        <span class="lang-zh">高性能</span>
+                        <span class="lang-en">High Performance</span>
+                    </h3>
+                    <p class="text-gray-400">
+                        <span class="lang-zh">每秒处理10万+交易，远超行业主流公链，满足大规模商业应用</span>
+                        <span class="lang-en">100,000+ TPS, supporting large-scale commercial use.</span>
+                    </p>
                 </div>
 
                 <div class="bg-primary/30 p-6 rounded-xl border border-gray-800 hover:border-purple-500 transition-all">
                     <i class="fa fa-lock text-3xl text-purple-500 mb-4"></i>
-                    <h3 class="text-xl font-bold mb-2">高安全</h3>
-                    <p class="text-gray-400">多层加密防护，去中心化节点验证，杜绝黑客攻击与数据篡改</p>
+                    <h3 class="text-xl font-bold mb-2">
+                        <span class="lang-zh">高安全</span>
+                        <span class="lang-en">High Security</span>
+                    </h3>
+                    <p class="text-gray-400">
+                        <span class="lang-zh">多层加密防护，去中心化节点验证，杜绝黑客攻击与数据篡改</span>
+                        <span class="lang-en">Multi-layer encryption & decentralized verification against attacks.</span>
+                    </p>
                 </div>
 
                 <div class="bg-primary/30 p-6 rounded-xl border border-gray-800 hover:border-accent transition-all">
                     <i class="fa fa-code-fork text-3xl text-accent mb-4"></i>
-                    <h3 class="text-xl font-bold mb-2">易扩展</h3>
-                    <p class="text-gray-400">模块化架构设计，支持DAPP、NFT、DeFi等全生态应用开发</p>
+                    <h3 class="text-xl font-bold mb-2">
+                        <span class="lang-zh">易扩展</span>
+                        <span class="lang-en">Scalability</span>
+                    </h3>
+                    <p class="text-gray-400">
+                        <span class="lang-zh">模块化架构设计，支持DAPP、NFT、DeFi等全生态应用开发</span>
+                        <span class="lang-en">Modular design for DApp, NFT, DeFi and more applications.</span>
+                    </p>
                 </div>
 
                 <div class="bg-primary/30 p-6 rounded-xl border border-gray-800 hover:border-secondary transition-all">
                     <i class="fa fa-users text-3xl text-secondary mb-4"></i>
-                    <h3 class="text-xl font-bold mb-2">去中心化</h3>
-                    <p class="text-gray-400">全球分布式节点网络，无中心化管控，真正实现社区自治</p>
+                    <h3 class="text-xl font-bold mb-2">
+                        <span class="lang-zh">去中心化</span>
+                        <span class="lang-en">Decentralized</span>
+                    </h3>
+                    <p class="text-gray-400">
+                        <span class="lang-zh">全球分布式节点网络，无中心化管控，真正实现社区自治</span>
+                        <span class="lang-en">Global distributed nodes, fully community autonomous.</span>
+                    </p>
                 </div>
             </div>
         </div>
@@ -283,34 +399,62 @@
                             Raymond Chain
                         </h2>
                     </div>
-                    <p class="text-gray-400">构建未来区块链生态，创造数字价值新时代</p>
+                    <p class="text-gray-400">
+                        <span class="lang-zh">构建未来区块链生态，创造数字价值新时代</span>
+                        <span class="lang-en">Build future blockchain ecosystem, create new digital value era.</span>
+                    </p>
                 </div>
 
                 <!-- 快速链接 -->
                 <div>
-                    <h3 class="text-lg font-bold mb-4">快速链接</h3>
+                    <h3 class="text-lg font-bold mb-4">
+                        <span class="lang-zh">快速链接</span>
+                        <span class="lang-en">Quick Links</span>
+                    </h3>
                     <ul class="space-y-2 text-gray-400">
-                        <li><a href="#home" class="hover:text-accent transition-colors">首页</a></li>
-                        <li><a href="#about" class="hover:text-accent transition-colors">关于我们</a></li>
-                        <li><a href="#ryt" class="hover:text-accent transition-colors">RYTC生态</a></li>
-                        <li><a href="#tech" class="hover:text-accent transition-colors">技术优势</a></li>
+                        <li><a href="#home" class="hover:text-accent transition-colors">
+                            <span class="lang-zh">首页</span><span class="lang-en">Home</span>
+                        </a></li>
+                        <li><a href="#about" class="hover:text-accent transition-colors">
+                            <span class="lang-zh">关于我们</span><span class="lang-en">About Us</span>
+                        </a></li>
+                        <li><a href="#ryt" class="hover:text-accent transition-colors">
+                            <span class="lang-zh">RYTC生态</span><span class="lang-en">RYTC Ecosystem</span>
+                        </a></li>
+                        <li><a href="#tech" class="hover:text-accent transition-colors">
+                            <span class="lang-zh">技术优势</span><span class="lang-en">Tech Advantages</span>
+                        </a></li>
                     </ul>
                 </div>
 
                 <!-- 资源中心 -->
                 <div>
-                    <h3 class="text-lg font-bold mb-4">资源中心</h3>
+                    <h3 class="text-lg font-bold mb-4">
+                        <span class="lang-zh">资源中心</span>
+                        <span class="lang-en">Resources</span>
+                    </h3>
                     <ul class="space-y-2 text-gray-400">
-                        <li><a href="#" class="hover:text-accent transition-colors">白皮书</a></li>
-                        <li><a href="#" class="hover:text-accent transition-colors">开发者文档</a></li>
-                        <li><a href="#" class="hover:text-accent transition-colors">新闻动态</a></li>
-                        <li><a href="#" class="hover:text-accent transition-colors">常见问题</a></li>
+                        <li><a href="#" class="hover:text-accent transition-colors">
+                            <span class="lang-zh">白皮书</span><span class="lang-en">Whitepaper</span>
+                        </a></li>
+                        <li><a href="#" class="hover:text-accent transition-colors">
+                            <span class="lang-zh">开发者文档</span><span class="lang-en">Docs</span>
+                        </a></li>
+                        <li><a href="#" class="hover:text-accent transition-colors">
+                            <span class="lang-zh">新闻动态</span><span class="lang-en">News</span>
+                        </a></li>
+                        <li><a href="#" class="hover:text-accent transition-colors">
+                            <span class="lang-zh">常见问题</span><span class="lang-en">FAQ</span>
+                        </a></li>
                     </ul>
                 </div>
 
                 <!-- 联系方式 -->
                 <div>
-                    <h3 class="text-lg font-bold mb-4">联系我们</h3>
+                    <h3 class="text-lg font-bold mb-4">
+                        <span class="lang-zh">联系我们</span>
+                        <span class="lang-en">Contact Us</span>
+                    </h3>
                     <ul class="space-y-2 text-gray-400">
                         <li class="flex items-center gap-2">
                             <i class="fa fa-envelope text-accent"></i>
@@ -318,7 +462,10 @@
                         </li>
                         <li class="flex items-center gap-2">
                             <i class="fa fa-map-marker text-accent"></i>
-                            <span>全球区块链科技园区</span>
+                            <span>
+                                <span class="lang-zh">全球区块链科技园区</span>
+                                <span class="lang-en">Global Blockchain Tech Park</span>
+                            </span>
                         </li>
                     </ul>
                 </div>
@@ -329,29 +476,55 @@
             <!-- 社交媒体 + 版权 -->
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="flex gap-4">
-                    <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-blue-500 transition-all">
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-blue-500 transition-all" title="Twitter">
                         <i class="fa fa-twitter text-white"></i>
                     </a>
-                    <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-purple-500 transition-all">
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-purple-500 transition-all" title="Telegram">
                         <i class="fa fa-telegram text-white"></i>
                     </a>
-                    <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-red-500 transition-all">
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-red-500 transition-all" title="Youtube">
                         <i class="fa fa-youtube-play text-white"></i>
                     </a>
-                    <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-blue-600 transition-all">
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-blue-600 transition-all" title="Linkedin">
                         <i class="fa fa-linkedin text-white"></i>
                     </a>
-                    <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-500 transition-all">
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-500 transition-all" title="WeChat">
                         <i class="fa fa-weixin text-white"></i>
                     </a>
                 </div>
-                <p class="text-gray-500 text-sm">© 2025 Raymond Chain (雷蒙德区块链科技). 保留所有权利.</p>
+                <p class="text-gray-500 text-sm">© 2025 Raymond Chain. All Rights Reserved.</p>
             </div>
         </div>
     </footer>
 
     <!-- JS 脚本 -->
     <script>
+        // 双语切换逻辑
+        const langBtn = document.getElementById('langBtn');
+        const langBtnMobile = document.getElementById('langBtnMobile');
+        let isZh = true;
+
+        // 切换语言函数
+        function switchLang() {
+            const zhList = document.querySelectorAll('.lang-zh');
+            const enList = document.querySelectorAll('.lang-en');
+            isZh = !isZh;
+
+            if(isZh){
+                zhList.forEach(el => el.style.display = 'inline');
+                enList.forEach(el => el.style.display = 'none');
+                document.documentElement.lang = 'zh-CN';
+            }else{
+                zhList.forEach(el => el.style.display = 'none');
+                enList.forEach(el => el.style.display = 'inline');
+                document.documentElement.lang = 'en';
+            }
+        }
+
+        // 绑定点击事件
+        langBtn.addEventListener('click', switchLang);
+        langBtnMobile.addEventListener('click', switchLang);
+
         // 粒子背景初始化
         particlesJS("particles-js", {
             particles: {
