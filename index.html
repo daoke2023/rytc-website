@@ -2,425 +2,422 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>RYTC 生态 - 跨链资产聚合平台</title>
-    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', system-ui; background: radial-gradient(circle at 20% 30%, #0a0f2a, #030617); min-height: 100vh; padding: 24px; color: #f0f3ff; }
-        .glow-line { position: fixed; top: 0; left: 0; width: 100%; height: 2px; background: linear-gradient(90deg, transparent, #00f2fe, #4facfe, #00f2fe, transparent); z-index: 100; }
-        .container { max-width: 1440px; margin: 0 auto; position: relative; z-index: 2; }
-        .header { background: rgba(15, 25, 55, 0.65); backdrop-filter: blur(12px); border-radius: 32px; padding: 20px 32px; margin-bottom: 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; border: 1px solid rgba(79, 172, 254, 0.3); }
-        .logo { font-size: 28px; font-weight: 800; background: linear-gradient(135deg, #aaffff, #4facfe); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .lang-select { background: rgba(0,0,0,0.5); border: 1px solid #2f4b8f; border-radius: 40px; padding: 6px 12px; color: white; font-size: 14px; cursor: pointer; }
-        .connect-btn { background: linear-gradient(95deg, #2b6ef0, #1a4ed8); color: white; border: none; padding: 12px 28px; border-radius: 60px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 12px rgba(27,86,230,0.4); }
-        .connect-btn:hover { transform: translateY(-2px); filter: brightness(1.05); }
-        .wallet-info { font-size: 13px; color: #b3ceff; background: rgba(0,0,0,0.4); padding: 6px 16px; border-radius: 40px; margin-top: 8px; font-family: monospace; }
-        .tabs { display: flex; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; background: rgba(10,20,40,0.5); backdrop-filter: blur(8px); padding: 8px 16px; border-radius: 80px; border: 1px solid rgba(79,172,254,0.3); }
-        .tab-btn { background: transparent; color: #cbd5ff; border: none; padding: 10px 24px; border-radius: 60px; font-size: 15px; font-weight: 500; cursor: pointer; transition: 0.2s; position: relative; }
-        .tab-btn.active { background: linear-gradient(135deg, #1f3a8a, #2b4eb5); color: white; box-shadow: 0 2px 12px rgba(43,110,240,0.5); }
-        .badge-pulse { position: absolute; top: -6px; right: -6px; background: #ff3366; color: white; font-size: 10px; font-weight: bold; min-width: 18px; height: 18px; border-radius: 20px; display: flex; align-items: center; justify-content: center; padding: 0 5px; animation: pulse 1.2s infinite; }
-        @keyframes pulse { 0% { opacity: 0.6; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1.1); } }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px; margin-bottom: 24px; }
-        .card { background: rgba(12,22,48,0.7); backdrop-filter: blur(12px); border-radius: 32px; padding: 24px; border: 1px solid rgba(79,172,254,0.25); transition: 0.2s; }
-        .card:hover { border-color: #4facfe80; }
-        .card h2 { font-size: 20px; margin-bottom: 20px; background: linear-gradient(135deg, #fff, #90b4ff); -webkit-background-clip: text; background-clip: text; color: transparent; display: flex; align-items: center; gap: 10px; }
-        .info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(79,172,254,0.2); font-size: 14px; }
-        .balance-item { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid rgba(79,172,254,0.2); font-size: 18px; font-weight: 600; }
-        input, select { width: 100%; padding: 12px 16px; margin: 8px 0; background: rgba(0,0,0,0.5); border: 1px solid #2f4b8f; border-radius: 24px; color: white; font-size: 14px; outline: none; transition: 0.2s; }
-        input:focus { border-color: #4facfe; box-shadow: 0 0 8px #4facfe66; }
-        button:not(.tab-btn):not(.connect-btn) { background: linear-gradient(95deg, #2b6ef0, #1a4ed8); border: none; padding: 12px; border-radius: 60px; font-weight: 600; color: white; width: 100%; margin-top: 16px; cursor: pointer; transition: 0.2s; }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
-        .status-active { color: #2ef0b0; text-shadow: 0 0 4px #2ef0b0; }
-        .status-ended { color: #f05a6e; }
-        .status-coming { color: #f0b02e; }
-        .reward-rate { background: rgba(0,242,254,0.1); border-radius: 20px; padding: 12px; text-align: center; border: 1px solid #2f6eb0; margin-bottom: 16px; }
-        .footer { text-align: center; margin-top: 40px; font-size: 12px; color: #6c8ecf; }
-        .miner-item { background: rgba(0,0,0,0.3); border-radius: 24px; padding: 16px; margin-bottom: 12px; border: 1px solid #2f4b8f; }
-        .toast-progress { background: #1f3a8a; border-radius: 20px; padding: 10px; margin-top: 10px; text-align: center; font-size: 13px; color: #aaffff; }
-        .copy-btn { background: #2f4b8f; border: none; color: white; padding: 4px 12px; border-radius: 20px; margin-left: 10px; cursor: pointer; font-size: 12px; }
-        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raymond Chain - 雷蒙德区块链科技</title>
+    <!-- 外部资源 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0F172A', // 科技深蓝
+                        secondary: '#7E22CE', // 霓虹紫
+                        accent: '#10B981', // 科技绿
+                        dark: '#020617',
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <!-- 自定义样式 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-gradient {
+                background-clip: text;
+                -webkit-background-clip: text;
+                color: transparent;
+            }
+            .bg-glass {
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+            }
+            .animate-float {
+                animation: float 3s ease-in-out infinite;
+            }
+            .animate-pulse-slow {
+                animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* 粒子背景 */
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
     </style>
 </head>
-<body>
-<div class="glow-line"></div>
-<div class="container">
-    <div class="header">
-        <div class="logo">⚡ RYTC NEXUS</div>
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <select id="langSelect" class="lang-select">
-                <option value="zh">🇨🇳 中文</option>
-                <option value="en">🇬🇧 English</option>
-                <option value="ja">🇯🇵 日本語</option>
-                <option value="ko">🇰🇷 한국어</option>
-                <option value="hi">🇮🇳 हिन्दी</option>
-                <option value="th">🇹🇭 ไทย</option>
-            </select>
-            <div>
-                <div class="wallet-info" id="walletInfo"></div>
-                <button class="connect-btn" id="connectBtn">🔌 连接钱包</button>
+<body class="font-inter bg-primary text-gray-200 overflow-x-hidden">
+    <!-- 导航栏 -->
+    <header class="fixed w-full top-0 z-50 transition-all duration-300" id="navbar">
+        <div class="bg-dark/80 bg-glass border-b border-gray-800">
+            <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+                <!-- 品牌Logo -->
+                <a href="#" class="flex items-center gap-2">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-secondary to-accent flex items-center justify-center">
+                        <span class="text-white text-xl font-bold">R</span>
+                    </div>
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-gradient">
+                        Raymond Chain
+                    </h1>
+                </a>
+
+                <!-- 桌面端导航 -->
+                <nav class="hidden md:flex items-center gap-8">
+                    <a href="#home" class="hover:text-accent transition-colors">首页</a>
+                    <a href="#about" class="hover:text-accent transition-colors">关于我们</a>
+                    <a href="#ryt" class="hover:text-accent transition-colors">RYTC生态</a>
+                    <a href="#tech" class="hover:text-accent transition-colors">技术优势</a>
+                    <a href="#contact" class="hover:text-accent transition-colors">联系我们</a>
+                    <button class="px-5 py-2 rounded-full bg-gradient-to-r from-secondary to-accent text-white font-semibold hover:shadow-lg hover:shadow-secondary/30 transition-all">
+                        白皮书
+                    </button>
+                </nav>
+
+                <!-- 移动端菜单按钮 -->
+                <button class="md:hidden text-2xl" id="menuBtn">
+                    <i class="fa fa-bars"></i>
+                </button>
             </div>
         </div>
-    </div>
-    <div id="warningBanner" style="background: rgba(255,80,40,0.2); border-left: 4px solid #ff5028; padding: 12px; border-radius: 16px; margin-bottom: 20px; display: none;"></div>
 
-    <div class="tabs">
-        <button class="tab-btn active" data-tab="ido" data-i18n="tab_ido">💰 IDO 认购</button>
-        <button class="tab-btn" data-tab="mining" data-i18n="tab_mining">⛏️ 矿机挖矿</button>
-        <button class="tab-btn" data-tab="team" data-i18n="tab_team">👥 团队分红</button>
-        <button class="tab-btn" data-tab="guild" data-i18n="tab_guild">🏛️ 公会分红</button>
-        <button class="tab-btn" data-tab="assets" data-i18n="tab_assets">📊 我的资产</button>
-    </div>
-
-    <!-- IDO Tab -->
-    <div id="ido-tab" class="tab-content active">
-        <div class="grid">
-            <div class="card">
-                <h2 data-i18n="ido_info_title">📈 IDO 信息</h2>
-                <div class="info-row"><span data-i18n="ido_start">开始时间</span><span id="idoStartTime">-</span></div>
-                <div class="info-row"><span data-i18n="ido_end">结束时间</span><span id="idoEndTime">-</span></div>
-                <div class="info-row"><span data-i18n="ido_status">状态</span><span id="idoStatus">-</span></div>
-                <div class="info-row"><span data-i18n="ido_rate_label">兑换比例</span><span id="idoRate">-</span></div>
-                <div class="info-row"><span data-i18n="ido_progress">已售/总量</span><span id="idoProgress">-</span></div>
-                <div class="info-row"><span data-i18n="ido_remaining">剩余代币</span><span id="idoRemaining">-</span></div>
-            </div>
-            <div class="card">
-                <h2 data-i18n="ido_participate_title">🎯 参与 IDO</h2>
-                <div class="reward-rate"><span data-i18n="referral_reward">🔗 推荐奖励：一级</span> <span id="level1Rate">1</span>% &nbsp;|&nbsp; <span data-i18n="level2">二级</span> <span id="level2Rate">2</span>%</div>
-                <input type="number" id="usdtAmount" placeholder="USDT 数量" step="0.1">
-                <input type="text" id="referrerAddr" placeholder="推荐人钱包地址 (可选)">
-                <button id="buyBtn" data-i18n="buy_btn">🚀 立即购买</button>
-                <div id="buyProgress" class="toast-progress" style="display: none;"></div>
-                <div id="buyResult" style="margin-top: 12px;"></div>
+        <!-- 移动端导航菜单 -->
+        <div class="md:hidden hidden bg-dark/95 bg-glass absolute w-full border-b border-gray-800" id="mobileMenu">
+            <div class="container mx-auto px-4 py-4 flex flex-col gap-4">
+                <a href="#home" class="py-2 hover:text-accent transition-colors">首页</a>
+                <a href="#about" class="py-2 hover:text-accent transition-colors">关于我们</a>
+                <a href="#ryt" class="py-2 hover:text-accent transition-colors">RYTC生态</a>
+                <a href="#tech" class="py-2 hover:text-accent transition-colors">技术优势</a>
+                <a href="#contact" class="py-2 hover:text-accent transition-colors">联系我们</a>
+                <button class="px-5 py-2 rounded-full bg-gradient-to-r from-secondary to-accent text-white font-semibold w-full">
+                    白皮书
+                </button>
             </div>
         </div>
-    </div>
+    </header>
 
-    <!-- 挖矿 Tab -->
-    <div id="mining-tab" class="tab-content">
-        <div class="grid">
-            <div class="card"><h2 data-i18n="mining_shop">⛏️ 矿机商城</h2><div id="minerTypesList"></div></div>
-            <div class="card"><h2 data-i18n="my_miners">📦 我的矿机</h2><div id="myMinersList"></div><button id="claimMiningBtn" data-i18n="claim_mining_btn">💎 领取今日释放收益</button><div id="miningResult"></div></div>
-        </div>
-    </div>
+    <!-- 首页英雄区 -->
+    <section id="home" class="relative min-h-screen flex items-center pt-20 overflow-hidden">
+        <!-- 动态粒子背景 -->
+        <div id="particles-js"></div>
+        
+        <div class="container mx-auto px-4 py-20 relative z-10">
+            <div class="flex flex-col lg:flex-row items-center gap-12">
+                <div class="lg:w-1/2 space-y-6">
+                    <h2 class="text-[clamp(2.5rem,5vw,4rem)] font-bold leading-tight">
+                        未来<span class="bg-gradient-to-r from-blue-400 to-purple-500 text-gradient">区块链</span>
+                        由雷蒙德定义
+                    </h2>
+                    <p class="text-lg text-gray-300 leading-relaxed">
+                        Raymond Chain 是全球领先的区块链科技公司，专注于构建去中心化生态系统，
+                        以顶尖技术为驱动，打造安全、高效、普惠的区块链价值网络。
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <button class="px-8 py-3 rounded-full bg-gradient-to-r from-secondary to-accent text-white font-semibold text-lg hover:shadow-lg hover:shadow-secondary/30 transition-all">
+                            探索生态
+                        </button>
+                        <button class="px-8 py-3 rounded-full border border-gray-600 text-lg hover:border-accent hover:text-accent transition-all">
+                            了解更多
+                        </button>
+                    </div>
+                </div>
 
-    <!-- 团队分红 Tab -->
-    <div id="team-tab" class="tab-content">
-        <div class="grid">
-            <div class="card"><h2 data-i18n="team_rewards_title">👥 团队级别奖励</h2><div id="teamRates"></div></div>
-            <div class="card"><h2 data-i18n="my_team_title">🏆 我的团队</h2>
-                <div class="info-row"><span data-i18n="my_level">当前级别</span><span id="myLevel">-</span></div>
-                <div class="info-row"><span data-i18n="direct_count">直推人数</span><span id="directCount">-</span></div>
-                <div class="info-row"><span data-i18n="pending_team_reward">待领取团队奖励</span><span id="pendingTeamReward">0 RYTC</span></div>
-                <button id="claimTeamBtn" data-i18n="claim_team_btn">🎁 领取团队奖励</button><div id="teamResult"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 公会分红 Tab -->
-    <div id="guild-tab" class="tab-content">
-        <div class="grid">
-            <div class="card"><h2 data-i18n="guild_system_title">🏛️ 公会系统</h2><p data-i18n="guild_desc">公会总数: 200个 | 分红比例: 总质押额的1%</p><select id="guildSelect"></select><button id="joinGuildBtn" data-i18n="join_guild_btn">✅ 加入公会</button></div>
-            <div class="card"><h2 data-i18n="my_guild_title">📊 我的公会</h2>
-                <div class="info-row"><span data-i18n="my_guild_label">我的公会</span><span id="myGuild">未加入</span></div>
-                <div class="info-row"><span data-i18n="guild_stake_label">公会总质押</span><span id="guildStake">-</span></div>
-                <div class="info-row"><span data-i18n="pending_guild_dividend">待领分红</span><span id="guildDividend">-</span></div>
-                <button id="claimGuildBtn" data-i18n="claim_guild_btn">💰 领取公会分红</button><div id="guildResult"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 资产 Tab -->
-    <div id="assets-tab" class="tab-content">
-        <div class="grid">
-            <div class="card"><h2 data-i18n="assets_title">💎 我的资产</h2>
-                <div class="balance-item"><span data-i18n="rytc_balance">RYTC 余额</span><span id="rytcBalance">0</span></div>
-                <div class="balance-item"><span data-i18n="usdt_balance">USDT 余额</span><span id="usdtBalance">0</span></div>
-                <div class="balance-item"><span data-i18n="ido_purchased_label">IDO 已购</span><span id="idoPurchased">0</span></div>
-                <div class="balance-item"><span data-i18n="pending_mining_reward">矿机待领取</span><span id="pendingMiningReward">0</span></div>
-                <div class="balance-item"><span data-i18n="pending_team_reward_asset">团队待领取</span><span id="pendingTeamRewardAsset">0</span></div>
-                <div class="balance-item"><span data-i18n="pending_guild_reward_asset">公会待领取</span><span id="pendingGuildDividendAsset">0</span></div>
-            </div>
-            <div class="card">
-                <h2 data-i18n="referral_info_title">🔗 推荐信息</h2>
-                <div class="info-row"><span data-i18n="my_referrer">我的推荐人</span><span id="myReferrer">未绑定</span></div>
-                <div class="info-row flex-between"><span data-i18n="invite_link">我的邀请链接</span>
-                    <div><span id="inviteLink" style="word-break: break-all; font-size:12px;"></span><button id="copyLinkBtn" class="copy-btn" data-i18n="copy_btn">复制</button></div>
+                <!-- 科技感主图 -->
+                <div class="lg:w-1/2 animate-float">
+                    <img src="https://picsum.photos/id/1/600/500" alt="Raymond区块链科技" 
+                         class="w-full max-w-lg mx-auto rounded-2xl shadow-2xl shadow-secondary/20 object-cover">
                 </div>
             </div>
         </div>
-    </div>
-    <div class="footer"><p data-i18n="footer_note">⚡ 首次购买需两次确认（授权+购买） | 授权一次后后续无需再授权</p></div>
-</div>
+    </section>
 
-<script>
-    // ==================== 多语言词典 ====================
-    const translations = {
-        zh: {
-            tab_ido: "💰 IDO 认购", tab_mining: "⛏️ 矿机挖矿", tab_team: "👥 团队分红", tab_guild: "🏛️ 公会分红", tab_assets: "📊 我的资产",
-            ido_info_title: "📈 IDO 信息", ido_start: "开始时间", ido_end: "结束时间", ido_status: "状态", ido_rate_label: "兑换比例", ido_progress: "已售/总量", ido_remaining: "剩余代币",
-            ido_participate_title: "🎯 参与 IDO", referral_reward: "🔗 推荐奖励：一级", level2: "二级", buy_btn: "🚀 立即购买",
-            mining_shop: "⛏️ 矿机商城", my_miners: "📦 我的矿机", claim_mining_btn: "💎 领取今日释放收益",
-            team_rewards_title: "👥 团队级别奖励", my_team_title: "🏆 我的团队", my_level: "当前级别", direct_count: "直推人数", pending_team_reward: "待领取团队奖励", claim_team_btn: "🎁 领取团队奖励",
-            guild_system_title: "🏛️ 公会系统", guild_desc: "公会总数: 200个 | 分红比例: 总质押额的1%", join_guild_btn: "✅ 加入公会", my_guild_title: "📊 我的公会", my_guild_label: "我的公会", guild_stake_label: "公会总质押", pending_guild_dividend: "待领分红", claim_guild_btn: "💰 领取公会分红",
-            assets_title: "💎 我的资产", rytc_balance: "RYTC 余额", usdt_balance: "USDT 余额", ido_purchased_label: "IDO 已购", pending_mining_reward: "矿机待领取", pending_team_reward_asset: "团队待领取", pending_guild_reward_asset: "公会待领取",
-            referral_info_title: "🔗 推荐信息", my_referrer: "我的推荐人", invite_link: "我的邀请链接", copy_btn: "复制",
-            footer_note: "⚡ 首次购买需两次确认（授权+购买） | 授权一次后后续无需再授权",
-            alert_connect: "请先连接钱包", alert_valid_usdt: "请输入有效的USDT数量", alert_approve_failed: "授权失败",
-            // 更多可以按需添加
-        },
-        en: {
-            tab_ido: "💰 IDO Purchase", tab_mining: "⛏️ Mining", tab_team: "👥 Team Rewards", tab_guild: "🏛️ Guild", tab_assets: "📊 Assets",
-            ido_info_title: "📈 IDO Info", ido_start: "Start Time", ido_end: "End Time", ido_status: "Status", ido_rate_label: "Rate", ido_progress: "Sold/Total", ido_remaining: "Remaining",
-            ido_participate_title: "🎯 Participate IDO", referral_reward: "🔗 Referral: Level1", level2: "Level2", buy_btn: "🚀 Buy Now",
-            mining_shop: "⛏️ Miner Shop", my_miners: "📦 My Miners", claim_mining_btn: "💎 Claim Daily Reward",
-            team_rewards_title: "👥 Team Level Rewards", my_team_title: "🏆 My Team", my_level: "Current Level", direct_count: "Direct Referrals", pending_team_reward: "Pending Team Reward", claim_team_btn: "🎁 Claim",
-            guild_system_title: "🏛️ Guild System", guild_desc: "Total Guilds: 200 | Dividend: 1% of stake", join_guild_btn: "✅ Join Guild", my_guild_title: "📊 My Guild", my_guild_label: "My Guild", guild_stake_label: "Total Stake", pending_guild_dividend: "Pending Dividend", claim_guild_btn: "💰 Claim",
-            assets_title: "💎 My Assets", rytc_balance: "RYTC Balance", usdt_balance: "USDT Balance", ido_purchased_label: "IDO Purchased", pending_mining_reward: "Mining Pending", pending_team_reward_asset: "Team Pending", pending_guild_reward_asset: "Guild Pending",
-            referral_info_title: "🔗 Referral Info", my_referrer: "My Referrer", invite_link: "Invite Link", copy_btn: "Copy",
-            footer_note: "⚡ First purchase requires two confirmations (approve+buy) | No further approval needed after first",
-        },
-        ja: { /* 类似结构，省略部分，实际可补充完整 */ },
-        ko: { /* 省略 */ },
-        hi: { /* 省略 */ },
-        th: { /* 省略 */ }
-    };
-    // 补充简化其他语言（保持功能完整，用户可自行扩展）
-    for (let lang of ['ja','ko','hi','th']) {
-        if (!translations[lang]) translations[lang] = translations['en'];
-    }
+    <!-- 关于我们 -->
+    <section id="about" class="py-20 bg-dark relative">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">关于 <span class="bg-gradient-to-r from-blue-400 to-purple-500 text-gradient">Raymond</span></h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">全球顶尖的区块链技术研发与生态运营公司，致力于推动区块链技术商业化落地</p>
+            </div>
 
-    let currentLang = 'zh';
-    function setLanguage(lang) {
-        currentLang = lang;
-        const t = translations[lang] || translations['en'];
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            const key = el.getAttribute('data-i18n');
-            if (t[key]) el.innerHTML = t[key];
-        });
-        // 动态更新按钮文本等（如需要）
-        const copyBtn = document.getElementById('copyLinkBtn');
-        if (copyBtn && t.copy_btn) copyBtn.innerHTML = t.copy_btn;
-        const buyBtn = document.getElementById('buyBtn');
-        if (buyBtn && t.buy_btn) buyBtn.innerHTML = t.buy_btn;
-    }
-    document.getElementById('langSelect').addEventListener('change', (e) => setLanguage(e.target.value));
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- 卡片1 -->
+                <div class="bg-primary/50 p-8 rounded-2xl border border-gray-800 hover:border-secondary transition-all hover:shadow-lg hover:shadow-secondary/10">
+                    <div class="w-14 h-14 rounded-xl bg-secondary/20 flex items-center justify-center mb-6">
+                        <i class="fa fa-globe text-2xl text-secondary"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">全球布局</h3>
+                    <p class="text-gray-400">业务覆盖全球多个国家和地区，构建国际化区块链价值网络，连接全球用户与技术生态</p>
+                </div>
 
-    // ==================== 合约配置 ====================
-    const CONFIG = {
-        chainId: 137,
-        token: "0xfab2Cc41282E20f98d1470802Ac51450EB8E9906",
-        ido: "0x9FFE5621eECda749Dd0dD18Ea90D44C0d079E4C6",
-        mining: "0x737E07277CcFF609EC3Ff9FabE5AD2Ab509D97F5",
-        team: "0xF11Da2FAa09aB297A08a5833D5A3ec7A35326983",
-        guild: "0x8EC9689CF57F83e5Eece439bD34F0f7010DA3a77",
-        usdt: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"
-    };
-    const MAX_UINT256 = "115792089237316195423570985008687907853269984665640564039457584007913129639935";
+                <!-- 卡片2 -->
+                <div class="bg-primary/50 p-8 rounded-2xl border border-gray-800 hover:border-secondary transition-all hover:shadow-lg hover:shadow-secondary/10">
+                    <div class="w-14 h-14 rounded-xl bg-accent/20 flex items-center justify-center mb-6">
+                        <i class="fa fa-shield text-2xl text-accent"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">安全可信</h3>
+                    <p class="text-gray-400">采用银行级加密算法与分布式账本技术，保障资产安全与交易可信，行业顶级安全标准</p>
+                </div>
 
-    const ERC20_ABI = ["function balanceOf(address) view returns (uint256)","function approve(address,uint256) returns (bool)","function allowance(address,address) view returns (uint256)","function decimals() view returns (uint8)","function transfer(address,uint256) returns (bool)"];
-    const IDO_ABI = ["function buy(uint256 usdtAmount, address referrer)","function startTime() view returns (uint256)","function endTime() view returns (uint256)","function rate() view returns (uint256)","function totalIDOAmount() view returns (uint256)","function soldAmount() view returns (uint256)","function level1RewardRate() view returns (uint256)","function level2RewardRate() view returns (uint256)","function referrer(address) view returns (address)","function purchased(address) view returns (uint256)","function getRemainingTokens() view returns (uint256)"];
-    const MINING_ABI = ["function minerTypes(uint256) view returns (uint32,uint256,uint256,uint256,uint256,uint256,uint256,bool)","function purchaseMiner(uint256,uint256)","function claimDailyReward()","function getUserMiners(address) view returns (tuple(uint256,uint256,uint256,uint256,uint256,uint256,bool)[])","function getPendingDailyReward(address) view returns (uint256)","function totalStaked(address) view returns (uint256)","function dailyReleaseTotal(address) view returns (uint256)","function minerTypesLength() view returns (uint256)"];
-    const TEAM_ABI = ["function bindReferral(address)","function claimTeamReward()","function getPendingTeamReward(address) view returns (uint256)","function userLevel(address) view returns (uint8)","function downlinesLength(address) view returns (uint256)","function upline(address) view returns (address)","function levelRewardRates(uint256) view returns (uint256)"];
-    const GUILD_ABI = ["function joinGuild(uint256)","function claimDividend(uint256)","function getGuildInfo(uint256) view returns (string,address,uint256,uint256,bool)","function userGuild(address) view returns (uint256)","function dividendRate() view returns (uint256)"];
+                <!-- 卡片3 -->
+                <div class="bg-primary/50 p-8 rounded-2xl border border-gray-800 hover:border-secondary transition-all hover:shadow-lg hover:shadow-secondary/10">
+                    <div class="w-14 h-14 rounded-xl bg-blue-500/20 flex items-center justify-center mb-6">
+                        <i class="fa fa-lightbulb-o text-2xl text-blue-500"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">技术创新</h3>
+                    <p class="text-gray-400">持续研发区块链底层技术，突破性能瓶颈，实现毫秒级交易，支持百万级并发处理能力</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    let provider, signer, userAddress;
-    let tokenContract, idoContract, miningContract, teamContract, guildContract, usdtContract;
-    let refreshTimer = null;
+    <!-- RYTC 生态币 -->
+    <section id="ryt" class="py-20 bg-primary relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-secondary/5 to-accent/5 z-0"></div>
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="flex flex-col lg:flex-row items-center gap-12">
+                <div class="lg:w-1/2 animate-float">
+                    <img src="https://picsum.photos/id/201/600/500" alt="RYTC生态币" 
+                         class="w-full max-w-lg mx-auto rounded-2xl shadow-2xl shadow-accent/20 object-cover">
+                </div>
+                <div class="lg:w-1/2 space-y-6">
+                    <h2 class="text-4xl font-bold">
+                        <span class="bg-gradient-to-r from-accent to-blue-500 text-gradient">RYTC</span>
+                        生态通证
+                    </h2>
+                    <p class="text-lg text-gray-300 leading-relaxed">
+                        RYTC 是 Raymond Chain 生态核心通证，全称 Raymond Token，
+                        贯穿整个生态系统的价值流通与权益凭证，拥有无限应用场景与升值空间。
+                    </p>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-dark/50 p-4 rounded-xl border border-gray-800">
+                            <h4 class="font-bold text-accent">总发行量</h4>
+                            <p class="text-2xl font-bold">100亿</p>
+                        </div>
+                        <div class="bg-dark/50 p-4 rounded-xl border border-gray-800">
+                            <h4 class="font-bold text-accent">共识机制</h4>
+                            <p class="text-2xl font-bold">DPoS</p>
+                        </div>
+                        <div class="bg-dark/50 p-4 rounded-xl border border-gray-800">
+                            <h4 class="font-bold text-accent">交易速度</h4>
+                            <p class="text-2xl font-bold">毫秒级</p>
+                        </div>
+                        <div class="bg-dark/50 p-4 rounded-xl border border-gray-800">
+                            <h4 class="font-bold text-accent">生态应用</h4>
+                            <p class="text-2xl font-bold">全场景</p>
+                        </div>
+                    </div>
 
-    function formatDecimals(amount, decimals) { if (!amount) return "0"; return parseFloat(ethers.utils.formatUnits(amount, decimals)).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 4 }); }
-    function showMessage(elId, msg, isError = false) { const el = document.getElementById(elId); if (el) { el.innerHTML = `<span style="color: ${isError ? '#ff7b72' : '#7effb3'}">${msg}</span>`; setTimeout(() => { if(el) el.innerHTML = ''; }, 8000); } }
-    function showProgress(text, show = true) { const el = document.getElementById('buyProgress'); if (el) { el.style.display = show ? 'block' : 'none'; el.innerText = text; } }
+                    <button class="px-8 py-3 rounded-full bg-gradient-to-r from-accent to-blue-500 text-white font-semibold text-lg hover:shadow-lg hover:shadow-accent/30 transition-all">
+                        购买 RYTC
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    // 刷新所有数据
-    async function refreshAllData() {
-        if (!userAddress || !tokenContract) return;
-        try {
-            const rytcBal = await tokenContract.balanceOf(userAddress);
-            document.getElementById('rytcBalance').innerText = formatDecimals(rytcBal, 18);
-            const usdtBal = await usdtContract.balanceOf(userAddress);
-            const usdtDec = await usdtContract.decimals();
-            document.getElementById('usdtBalance').innerText = formatDecimals(usdtBal, usdtDec);
-            if (idoContract) {
-                const start = await idoContract.startTime(); const end = await idoContract.endTime(); const rate = await idoContract.rate();
-                const total = await idoContract.totalIDOAmount(); const sold = await idoContract.soldAmount(); const remaining = await idoContract.getRemainingTokens();
-                const l1 = await idoContract.level1RewardRate(); const l2 = await idoContract.level2RewardRate(); const purchased = await idoContract.purchased(userAddress);
-                document.getElementById('idoStartTime').innerText = new Date(start.toNumber()*1000).toLocaleString();
-                document.getElementById('idoEndTime').innerText = new Date(end.toNumber()*1000).toLocaleString();
-                const now = Date.now()/1000; let status = '';
-                if (now < start.toNumber()) status = '<span class="status-coming">即将开始</span>';
-                else if (now <= end.toNumber()) status = '<span class="status-active">进行中</span>';
-                else status = '<span class="status-ended">已结束</span>';
-                document.getElementById('idoStatus').innerHTML = status;
-                document.getElementById('idoRate').innerText = `1 USDT = ${rate.toNumber()} RYTC`;
-                document.getElementById('idoProgress').innerText = `${formatDecimals(sold, 18)} / ${formatDecimals(total, 18)}`;
-                document.getElementById('idoRemaining').innerText = `${formatDecimals(remaining, 18)} RYTC`;
-                document.getElementById('level1Rate').innerText = (l1.toNumber()/100).toString();
-                document.getElementById('level2Rate').innerText = (l2.toNumber()/100).toString();
-                document.getElementById('idoPurchased').innerText = formatDecimals(purchased, 18);
-            }
-            if (miningContract) {
-                const pending = await miningContract.getPendingDailyReward(userAddress);
-                document.getElementById('pendingMiningReward').innerText = formatDecimals(pending, 18);
-                await renderMyMiners();
-            }
-            if (teamContract) {
-                const teamPendingWei = await teamContract.getPendingTeamReward(userAddress);
-                document.getElementById('pendingTeamReward').innerText = formatDecimals(teamPendingWei, 18);
-                document.getElementById('pendingTeamRewardAsset').innerText = formatDecimals(teamPendingWei, 18);
-                const uplineAddr = await teamContract.upline(userAddress);
-                // 从IDO合约读取推荐人（显示用）
-                const idoReferrer = await idoContract.referrer(userAddress);
-                document.getElementById('myReferrer').innerHTML = (idoReferrer === ethers.constants.AddressZero) ? '未绑定' : idoReferrer.slice(0,6)+'...'+idoReferrer.slice(-4);
-                document.getElementById('inviteLink').innerHTML = window.location.origin + window.location.pathname + '?ref=' + userAddress;
-            }
-            if (guildContract) {
-                const guildId = await guildContract.userGuild(userAddress);
-                if (!guildId.eq(0)) {
-                    const info = await guildContract.getGuildInfo(guildId);
-                    document.getElementById('guildDividend').innerText = formatDecimals(info.pendingDividend, 18);
-                    document.getElementById('pendingGuildDividendAsset').innerText = formatDecimals(info.pendingDividend, 18);
+    <!-- 技术优势 -->
+    <section id="tech" class="py-20 bg-dark">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">核心 <span class="bg-gradient-to-r from-blue-400 to-purple-500 text-gradient">技术优势</span></h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">基于自研底层公链，突破传统区块链技术瓶颈，引领行业创新</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-primary/30 p-6 rounded-xl border border-gray-800 hover:border-blue-500 transition-all">
+                    <i class="fa fa-bolt text-3xl text-blue-500 mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">高性能</h3>
+                    <p class="text-gray-400">每秒处理10万+交易，远超行业主流公链，满足大规模商业应用</p>
+                </div>
+
+                <div class="bg-primary/30 p-6 rounded-xl border border-gray-800 hover:border-purple-500 transition-all">
+                    <i class="fa fa-lock text-3xl text-purple-500 mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">高安全</h3>
+                    <p class="text-gray-400">多层加密防护，去中心化节点验证，杜绝黑客攻击与数据篡改</p>
+                </div>
+
+                <div class="bg-primary/30 p-6 rounded-xl border border-gray-800 hover:border-accent transition-all">
+                    <i class="fa fa-code-fork text-3xl text-accent mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">易扩展</h3>
+                    <p class="text-gray-400">模块化架构设计，支持DAPP、NFT、DeFi等全生态应用开发</p>
+                </div>
+
+                <div class="bg-primary/30 p-6 rounded-xl border border-gray-800 hover:border-secondary transition-all">
+                    <i class="fa fa-users text-3xl text-secondary mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">去中心化</h3>
+                    <p class="text-gray-400">全球分布式节点网络，无中心化管控，真正实现社区自治</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 联系我们 -->
+    <footer id="contact" class="bg-dark pt-20 pb-10 border-t border-gray-800">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-10 mb-10">
+                <!-- 品牌 -->
+                <div class="space-y-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-secondary to-accent flex items-center justify-center">
+                            <span class="text-white text-xl font-bold">R</span>
+                        </div>
+                        <h2 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-gradient">
+                            Raymond Chain
+                        </h2>
+                    </div>
+                    <p class="text-gray-400">构建未来区块链生态，创造数字价值新时代</p>
+                </div>
+
+                <!-- 快速链接 -->
+                <div>
+                    <h3 class="text-lg font-bold mb-4">快速链接</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#home" class="hover:text-accent transition-colors">首页</a></li>
+                        <li><a href="#about" class="hover:text-accent transition-colors">关于我们</a></li>
+                        <li><a href="#ryt" class="hover:text-accent transition-colors">RYTC生态</a></li>
+                        <li><a href="#tech" class="hover:text-accent transition-colors">技术优势</a></li>
+                    </ul>
+                </div>
+
+                <!-- 资源中心 -->
+                <div>
+                    <h3 class="text-lg font-bold mb-4">资源中心</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-accent transition-colors">白皮书</a></li>
+                        <li><a href="#" class="hover:text-accent transition-colors">开发者文档</a></li>
+                        <li><a href="#" class="hover:text-accent transition-colors">新闻动态</a></li>
+                        <li><a href="#" class="hover:text-accent transition-colors">常见问题</a></li>
+                    </ul>
+                </div>
+
+                <!-- 联系方式 -->
+                <div>
+                    <h3 class="text-lg font-bold mb-4">联系我们</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li class="flex items-center gap-2">
+                            <i class="fa fa-envelope text-accent"></i>
+                            <span>contact@raymondchain.com</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fa fa-map-marker text-accent"></i>
+                            <span>全球区块链科技园区</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <hr class="border-gray-800 mb-8">
+
+            <!-- 社交媒体 + 版权 -->
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex gap-4">
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-blue-500 transition-all">
+                        <i class="fa fa-twitter text-white"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-purple-500 transition-all">
+                        <i class="fa fa-telegram text-white"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-red-500 transition-all">
+                        <i class="fa fa-youtube-play text-white"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-blue-600 transition-all">
+                        <i class="fa fa-linkedin text-white"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-500 transition-all">
+                        <i class="fa fa-weixin text-white"></i>
+                    </a>
+                </div>
+                <p class="text-gray-500 text-sm">© 2025 Raymond Chain (雷蒙德区块链科技). 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JS 脚本 -->
+    <script>
+        // 粒子背景初始化
+        particlesJS("particles-js", {
+            particles: {
+                number: { value: 80 },
+                color: { value: "#7E22CE" },
+                shape: { type: "circle" },
+                opacity: { value: 0.5 },
+                size: { value: 3 },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: "#7E22CE",
+                    opacity: 0.2,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 1,
+                    direction: "none",
+                    random: true,
+                    straight: false,
+                    out_mode: "out",
+                    bounce: false
                 }
-            }
-        } catch(e) { console.error(e); }
-    }
-
-    // 矿机相关函数（与原代码相同，略作简化）
-    async function loadMinerTypes() { /* 与原相同，省略以节省空间，实际需保留完整实现 */ }
-    async function purchaseMiner(typeId, amountWei) { /* 同前 */ }
-    async function renderMyMiners() { /* 同前 */ }
-    async function claimMiningReward() { /* 同前 */ }
-    document.getElementById('claimMiningBtn').onclick = claimMiningReward;
-
-    // 购买IDO（自动授权串联）
-    document.getElementById('buyBtn').onclick = async () => {
-        if (!userAddress) { alert(translations[currentLang].alert_connect); return; }
-        const usdtAmountInput = parseFloat(document.getElementById('usdtAmount').value);
-        if (isNaN(usdtAmountInput) || usdtAmountInput <= 0) { alert(translations[currentLang].alert_valid_usdt); return; }
-        let referrer = document.getElementById('referrerAddr').value.trim();
-        if (!referrer || referrer === '') referrer = ethers.constants.AddressZero;
-        const usdtDecimals = await usdtContract.decimals();
-        const amountWei = ethers.utils.parseUnits(usdtAmountInput.toString(), usdtDecimals);
-        showProgress('🔄 检查授权...', true);
-        document.getElementById('buyBtn').disabled = true;
-        try {
-            const allowance = await usdtContract.allowance(userAddress, CONFIG.ido);
-            if (allowance.lt(amountWei)) {
-                showProgress(`🔓 需要授权 USDT...`, true);
-                const approveTx = await usdtContract.approve(CONFIG.ido, MAX_UINT256);
-                await approveTx.wait();
-                showProgress(`✅ 授权成功，正在购买...`, true);
-            } else {
-                showProgress(`✅ 授权充足，直接购买...`, true);
-            }
-            const buyTx = await idoContract.buy(amountWei, referrer);
-            showProgress(`⏳ 购买交易已提交...`, true);
-            await buyTx.wait();
-            showProgress(`🎉 购买成功！`, true);
-            showMessage('buyResult', '购买成功！代币已到账');
-            await refreshAllData();
-            document.getElementById('usdtAmount').value = '';
-        } catch (err) {
-            console.error(err);
-            let errorMsg = err.message || '';
-            if (errorMsg.includes('user rejected')) errorMsg = '用户取消操作';
-            else if (errorMsg.includes('USDT transfer failed')) errorMsg = 'USDT 转账失败，余额或授权不足';
-            else if (errorMsg.includes('IDO not active')) errorMsg = 'IDO 未开始或已结束';
-            else if (errorMsg.includes('Exceeds total IDO amount')) errorMsg = '购买量超过剩余额度';
-            showMessage('buyResult', `❌ 失败：${errorMsg}`, true);
-        } finally {
-            document.getElementById('buyBtn').disabled = false;
-            setTimeout(() => showProgress('', false), 3000);
-        }
-    };
-
-    // 推荐链接处理：页面加载时检查URL参数 ref
-    async function handleReferralLink() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const refAddress = urlParams.get('ref');
-        if (refAddress && ethers.utils.isAddress(refAddress) && (!userAddress || refAddress.toLowerCase() !== userAddress.toLowerCase())) {
-            // 自动填入推荐人输入框
-            document.getElementById('referrerAddr').value = refAddress;
-            // 如果已经连接钱包且未绑定团队关系，自动调用团队合约绑定
-            if (userAddress && teamContract) {
-                try {
-                    const currentReferrer = await teamContract.upline(userAddress);
-                    if (currentReferrer === ethers.constants.AddressZero) {
-                        const tx = await teamContract.bindReferral(refAddress);
-                        await tx.wait();
-                        console.log('自动绑定推荐人成功');
-                    }
-                } catch(e) { console.error('自动绑定失败', e); }
-            }
-        }
-    }
-
-    // 复制邀请链接
-    document.getElementById('copyLinkBtn').onclick = () => {
-        const link = document.getElementById('inviteLink').innerText;
-        if (link) {
-            navigator.clipboard.writeText(link);
-            alert('链接已复制');
-        }
-    };
-
-    // 连接钱包
-    async function connectWallet() {
-        if (!window.ethereum) { alert('安装MetaMask'); return; }
-        try {
-            await window.ethereum.request({ method: 'eth_requestAccounts' });
-            provider = new ethers.providers.Web3Provider(window.ethereum);
-            const network = await provider.getNetwork();
-            if (network.chainId !== CONFIG.chainId) { alert(`请切换到 Polygon 主网 (Chain ID: 137)`); return; }
-            signer = provider.getSigner();
-            userAddress = await signer.getAddress();
-            document.getElementById('walletInfo').innerHTML = `📍 ${userAddress.slice(0,6)}...${userAddress.slice(-4)}`;
-            document.getElementById('connectBtn').innerHTML = '✅ 已连接';
-            tokenContract = new ethers.Contract(CONFIG.token, ERC20_ABI, signer);
-            usdtContract = new ethers.Contract(CONFIG.usdt, ERC20_ABI, signer);
-            idoContract = new ethers.Contract(CONFIG.ido, IDO_ABI, signer);
-            miningContract = new ethers.Contract(CONFIG.mining, MINING_ABI, signer);
-            teamContract = new ethers.Contract(CONFIG.team, TEAM_ABI, signer);
-            guildContract = new ethers.Contract(CONFIG.guild, GUILD_ABI, signer);
-            await refreshAllData();
-            await loadMinerTypes();
-            await renderMyMiners();
-            await handleReferralLink();
-            if (refreshTimer) clearInterval(refreshTimer);
-            refreshTimer = setInterval(async () => { if(userAddress) await refreshAllData(); }, 30000);
-        } catch(e) { console.error(e); alert('连接失败'); }
-    }
-    document.getElementById('connectBtn').onclick = connectWallet;
-
-    // 团队、公会相关按钮（与原相同）
-    document.getElementById('claimTeamBtn').onclick = async () => { try { const tx = await teamContract.claimTeamReward(); await tx.wait(); alert('领取成功'); await refreshAllData(); } catch(e) { alert('失败: '+e.message); } };
-    document.getElementById('joinGuildBtn').onclick = async () => { const gid = parseInt(document.getElementById('guildSelect').value); if(!gid) return; try { const tx = await guildContract.joinGuild(gid); await tx.wait(); alert('加入成功'); await refreshAllData(); } catch(e) { alert('失败: '+e.message); } };
-    document.getElementById('claimGuildBtn').onclick = async () => { const gid = await guildContract.userGuild(userAddress); if(gid.eq(0)) return alert('未加入公会'); try { const tx = await guildContract.claimDividend(gid); await tx.wait(); alert('领取成功'); await refreshAllData(); } catch(e) { alert('失败: '+e.message); } };
-
-    // Tab切换
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const tid = btn.getAttribute('data-tab');
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById(`${tid}-tab`).classList.add('active');
-            if (tid === 'mining') { loadMinerTypes(); renderMyMiners(); }
-            refreshAllData();
+            },
+            interactivity: {
+                detect_on: "canvas",
+                events: {
+                    onhover: { enable: true, mode: "grab" },
+                    onclick: { enable: true, mode: "push" }
+                }
+            },
+            retina_detect: true
         });
-    });
-    function initGuildSelect() { const sel = document.getElementById('guildSelect'); sel.innerHTML = ''; for(let i=1;i<=200;i++){ const opt=document.createElement('option'); opt.value=i; opt.textContent=`公会 ${i}`; sel.appendChild(opt); } }
-    initGuildSelect();
-    window.ethereum?.on('chainChanged',()=>window.location.reload());
-    window.ethereum?.on('accountsChanged',()=>connectWallet());
 
-    // 初始化语言
-    setLanguage('zh');
-    // 如果有ref参数，尝试在连接后处理
-    if (window.location.search.includes('ref')) {
-        if (userAddress) handleReferralLink();
-        else window.addEventListener('load', () => { if (userAddress) handleReferralLink(); });
-    }
-</script>
+        // 导航栏滚动效果
+        const navbar = document.getElementById("navbar");
+        window.addEventListener("scroll", () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add("py-2");
+                navbar.classList.add("shadow-lg");
+            } else {
+                navbar.classList.remove("py-2");
+                navbar.classList.remove("shadow-lg");
+            }
+        });
+
+        // 移动端菜单
+        const menuBtn = document.getElementById("menuBtn");
+        const mobileMenu = document.getElementById("mobileMenu");
+        menuBtn.addEventListener("click", () => {
+            mobileMenu.classList.toggle("hidden");
+        });
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+                if (!mobileMenu.classList.contains('hidden')) {
+                    mobileMenu.classList.add('hidden');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
